@@ -1,0 +1,75 @@
+digraph ER {
+  graph [rankdir=TB, bgcolor="white", pad=0.2, nodesep=0.5, ranksep=0.9, fontname="Helvetica"];
+  node  [shape=plaintext, fontname="Helvetica", fontsize=11];
+  edge  [fontname="Helvetica", fontsize=10, color="#444444", arrowsize=0.8];
+  {rank=same; municipalities; ingestion_log;}
+  {rank=same; buildings_microsoft; buildings_google;}
+
+  municipalities [label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="4" BGCOLOR="#F4F8FF">
+      <TR><TD BGCOLOR="#1F4E79" COLSPAN="2"><FONT COLOR="white"><B>municipalities</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT"><B>_id</B></TD><TD ALIGN="LEFT">String (DIVIPOLA, 5 dig.) PK</TD></TR>
+      <TR><TD ALIGN="LEFT">name</TD><TD ALIGN="LEFT">String</TD></TR>
+      <TR><TD ALIGN="LEFT">department_code / name</TD><TD ALIGN="LEFT">String</TD></TR>
+      <TR><TD ALIGN="LEFT">pdet_subregion</TD><TD ALIGN="LEFT">String</TD></TR>
+      <TR><TD ALIGN="LEFT">area_km2</TD><TD ALIGN="LEFT">Double</TD></TR>
+      <TR><TD ALIGN="LEFT"><B>geometry</B></TD><TD ALIGN="LEFT">MultiPolygon [2dsphere]</TD></TR>
+      <TR><TD ALIGN="LEFT">mgn_version</TD><TD ALIGN="LEFT">String</TD></TR>
+    </TABLE>>];
+
+  buildings_microsoft [label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="4" BGCOLOR="#F6FBF4">
+      <TR><TD BGCOLOR="#2E7D32" COLSPAN="2"><FONT COLOR="white"><B>buildings_microsoft</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT"><B>_id</B></TD><TD ALIGN="LEFT">ObjectId PK</TD></TR>
+      <TR><TD ALIGN="LEFT"><B>geometry</B></TD><TD ALIGN="LEFT">Polygon [2dsphere]</TD></TR>
+      <TR><TD ALIGN="LEFT">area_m2</TD><TD ALIGN="LEFT">Double (EPSG:9377)</TD></TR>
+      <TR><TD ALIGN="LEFT">municipality_code</TD><TD ALIGN="LEFT">String FK [index]</TD></TR>
+      <TR><TD ALIGN="LEFT">source_file</TD><TD ALIGN="LEFT">String</TD></TR>
+      <TR><TD ALIGN="LEFT">is_valid_geom</TD><TD ALIGN="LEFT">Boolean</TD></TR>
+    </TABLE>>];
+
+  buildings_google [label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="4" BGCOLOR="#FFF8F0">
+      <TR><TD BGCOLOR="#E65100" COLSPAN="2"><FONT COLOR="white"><B>buildings_google</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT"><B>_id</B></TD><TD ALIGN="LEFT">ObjectId PK</TD></TR>
+      <TR><TD ALIGN="LEFT"><B>geometry</B></TD><TD ALIGN="LEFT">Polygon [2dsphere]</TD></TR>
+      <TR><TD ALIGN="LEFT">area_m2</TD><TD ALIGN="LEFT">Double (original)</TD></TR>
+      <TR><TD ALIGN="LEFT">confidence</TD><TD ALIGN="LEFT">Double (0-1)</TD></TR>
+      <TR><TD ALIGN="LEFT">full_plus_code</TD><TD ALIGN="LEFT">String</TD></TR>
+      <TR><TD ALIGN="LEFT">municipality_code</TD><TD ALIGN="LEFT">String FK [index]</TD></TR>
+      <TR><TD ALIGN="LEFT">source_file</TD><TD ALIGN="LEFT">String</TD></TR>
+      <TR><TD ALIGN="LEFT">is_valid_geom</TD><TD ALIGN="LEFT">Boolean</TD></TR>
+    </TABLE>>];
+
+  results [label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="4" BGCOLOR="#F9F4FF">
+      <TR><TD BGCOLOR="#6A1B9A" COLSPAN="2"><FONT COLOR="white"><B>results</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT"><B>_id</B></TD><TD ALIGN="LEFT">ObjectId PK</TD></TR>
+      <TR><TD ALIGN="LEFT">municipality_code</TD><TD ALIGN="LEFT">String FK</TD></TR>
+      <TR><TD ALIGN="LEFT">source</TD><TD ALIGN="LEFT">"microsoft" | "google"</TD></TR>
+      <TR><TD ALIGN="LEFT">building_count</TD><TD ALIGN="LEFT">Int64</TD></TR>
+      <TR><TD ALIGN="LEFT">total_roof_area_m2</TD><TD ALIGN="LEFT">Double</TD></TR>
+      <TR><TD ALIGN="LEFT">suitable_area_m2</TD><TD ALIGN="LEFT">Double</TD></TR>
+      <TR><TD ALIGN="LEFT">params</TD><TD ALIGN="LEFT">Object (min_area, min_conf)</TD></TR>
+      <TR><TD ALIGN="LEFT">computed_at</TD><TD ALIGN="LEFT">Date</TD></TR>
+    </TABLE>>];
+
+  ingestion_log [label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="4" BGCOLOR="#F5F5F5">
+      <TR><TD BGCOLOR="#455A64" COLSPAN="2"><FONT COLOR="white"><B>ingestion_log</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT"><B>_id</B></TD><TD ALIGN="LEFT">ObjectId PK</TD></TR>
+      <TR><TD ALIGN="LEFT">dataset</TD><TD ALIGN="LEFT">String</TD></TR>
+      <TR><TD ALIGN="LEFT">file / url</TD><TD ALIGN="LEFT">String</TD></TR>
+      <TR><TD ALIGN="LEFT">rows_read / inserted / rejected</TD><TD ALIGN="LEFT">Int64</TD></TR>
+      <TR><TD ALIGN="LEFT">checksum</TD><TD ALIGN="LEFT">String (SHA-256)</TD></TR>
+      <TR><TD ALIGN="LEFT">loaded_at</TD><TD ALIGN="LEFT">Date</TD></TR>
+    </TABLE>>];
+
+  municipalities -> buildings_microsoft [label="1 : N\n(municipality_code)", dir=both, arrowtail=tee, arrowhead=crow];
+  municipalities -> buildings_google    [label="1 : N\n(municipality_code)", dir=both, arrowtail=tee, arrowhead=crow];
+  municipalities -> results             [label="1 : N\n(municipality_code)", dir=both, arrowtail=tee, arrowhead=crow];
+  buildings_microsoft -> results [label="agrega", style=dashed];
+  buildings_google    -> results [label="agrega", style=dashed];
+  ingestion_log -> buildings_microsoft [label="registra carga", style=dotted];
+  ingestion_log -> buildings_google    [label="registra carga", style=dotted];
+}
