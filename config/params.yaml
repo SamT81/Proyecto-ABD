@@ -1,0 +1,19 @@
+# Parámetros del proyecto (no hardcodear en los scripts)
+mongo:
+  uri: "mongodb://localhost:27017"
+  database: "upme_solar"
+
+crs:
+  storage: "EPSG:4326"     # 2dsphere requiere lon/lat WGS84
+  area: "EPSG:9377"        # MAGNA-SIRGAS Origen Nacional, para calcular áreas
+
+mgn:
+  version: "MGN2025"
+
+load:
+  batch_size: 20000        # documentos por insert_many (rango sugerido: 10 000 - 50 000)
+  workers: 4
+
+roof_suitability:          # criterio de techo apto; valores iniciales a calibrar en el EDA
+  min_area_m2: 15
+  min_confidence: 0.70     # solo aplica a Google Open Buildings

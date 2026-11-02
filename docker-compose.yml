@@ -1,0 +1,24 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: upme-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  # Opcional: interfaz web para inspeccionar colecciones (perfil "tools")
+  mongo-express:
+    image: mongo-express
+    container_name: upme-mongo-express
+    profiles: ["tools"]
+    depends_on:
+      - mongo
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://mongo:27017/
+
+volumes:
+  mongo_data:

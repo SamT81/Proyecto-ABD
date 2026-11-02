@@ -1,0 +1,10 @@
+data/*
+!data/.gitkeep
+*.zip
+*.gz
+*.parquet
+*.geojson
+__pycache__/
+.venv/
+.ipynb_checkpoints/
+.env
