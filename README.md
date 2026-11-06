@@ -2,7 +2,7 @@
 
 Proyecto final de Administración de Bases de Datos, Pontificia Universidad Javeriana.
 
-**Autores:** Samuel Tovar y Juan Romero.
+**Autores:** Samuel Tovar, Juan Romero, Carlos Pinzón Caicedo y Alejandro Padilla Gaviria.
 **Repositorio:** https://github.com/SamT81/Proyecto-ABD
 
 Estima el número de edificaciones y el área de techos aptos para paneles solares en los municipios
