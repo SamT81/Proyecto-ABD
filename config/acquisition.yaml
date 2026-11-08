@@ -1,0 +1,40 @@
+# Parámetros de adquisición y verificación del MGN (Entrega 2).
+# Las rutas son relativas a la raíz del repositorio.
+
+mgn:
+  version: "MGN2025"
+  nivel: "municipio"
+  pagina: "https://geoportal.dane.gov.co/servicios/descarga-y-metadatos/datos-geoestadisticos/?cod=111"
+  # "Versión MGN2025-Nivel Municipio" (Shapefile). Contiene la misma capa municipal que el ZIP
+  # completo de 1.5 GB, así que se descarga solo este nivel.
+  url: "https://geoportal.dane.gov.co/descargas/mgn_2025/MGN2025_MPIO_GRAFICO.zip"
+  zip: "data/raw/MGN2025_MPIO_GRAFICO.zip"
+  extract_dir: "data/raw/mgn2025_mpio"
+  shapefile: "MGN_ADM_MPIO_GRAFICO.shp"
+  # Valores fijados en la primera descarga (08/11/2026). Si el DANE publica otra versión del
+  # archivo la verificación falla y hay que revisar el cambio antes de actualizar estos valores.
+  sha256: "a3c01393059be8f2947de5e0a828faa4c7a43119819a667a8124854340bc141f"
+  size_bytes: 71576494
+  expected_crs: "EPSG:4326"
+  expected_municipalities: 1122
+
+pdet:
+  # Listado oficial de la Agencia de Renovación del Territorio (Decreto 893 de 2017)
+  source_xlsx: "config/pdet/MunicipiosPDET.xlsx"
+  catalog_csv: "config/pdet/pdet_municipios.csv"
+  expected_municipalities: 170
+  expected_subregions: 16
+
+output:
+  gpkg: "data/mgn_pdet_2025.gpkg"     # entrada por defecto de src/01_load_municipalities.py
+  layer: "municipios_pdet"
+  manifest: "docs/calidad/manifest_mgn.json"
+  qc_json: "docs/calidad/qc_mgn_pdet.json"
+  qc_md: "docs/calidad/qc_mgn_pdet.md"
+
+qc:
+  bbox: [-82.0, -5.0, -66.0, 14.0]   # lon/lat que contiene a Colombia
+  area_crs: "EPSG:9377"              # MAGNA-SIRGAS Origen Nacional
+  max_area_diff_pct: 1.0             # diferencia permitida contra mpio_narea del DANE
+  max_overlap_km2: 0.01              # solape tolerado entre municipios vecinos
+  max_doc_mb: 15.0                   # margen frente al límite BSON de 16 MB
