@@ -38,6 +38,9 @@ docker compose --profile tools up -d       # opcional: mongo-express en localhos
 ## Pipeline (se completa en las entregas 2 a 4)
 
 ```bash
+python src/00a_download_mgn.py             # Entrega 2: descarga y verificación SHA-256 del MGN
+python src/00b_build_pdet_catalog.py       # Entrega 2: listado PDET (ART) -> CSV (ya versionado)
+python src/00c_filter_pdet.py              # Entrega 2: filtro de los 170 PDET + controles de calidad
 python src/01_load_municipalities.py       # Entrega 2
 python src/02_load_buildings.py            # Entrega 3
 python src/03_compute_results.py           # Entrega 4
@@ -55,3 +58,10 @@ xelatex main.tex && xelatex main.tex       # o pdflatex; también funciona en Ov
 
 Se documentan URL, fecha de descarga y checksum de cada fuente. Se respeta la atribución exigida por
 las licencias (ODbL, CC BY 4.0).
+
+| Fuente | Archivo | Descarga | SHA-256 |
+|---|---|---|---|
+| DANE, MGN2025 nivel municipio | [`MGN2025_MPIO_GRAFICO.zip`](https://geoportal.dane.gov.co/descargas/mgn_2025/MGN2025_MPIO_GRAFICO.zip) (71.6 MB) | 08/11/2026 | `a3c01393059be8f2947de5e0a828faa4c7a43119819a667a8124854340bc141f` |
+| ART, municipios PDET (Decreto 893 de 2017) | `config/pdet/MunicipiosPDET.xlsx` | versionado | ver `docs/calidad/qc_mgn_pdet.md` |
+
+Detalle de la descarga y de los controles de calidad: `docs/adquisicion_mgn.md`.
