@@ -1,0 +1,38 @@
+% Sección para el informe de la Entrega 2. Se incluye con \input{fase2_seccion_integracion_espacial}
+% (requiere booktabs y listings, ya cargados en main.tex). Reemplace los campos <...> con la salida real de
+% src/spatial_evidence.py (docs/evidencia/spatial_evidence.md).
+\section{Integración Espacial en MongoDB}
+
+\subsection{Carga e índices}
+Los municipios PDET limpios (GeoJSON en EPSG:4326, producido por el ETL de integridad) se cargan en la colección
+\texttt{municipalities} con \texttt{src/load\_to\_mongo.py}. La carga es idempotente (\emph{upsert} por
+\texttt{\_id}, el código DIVIPOLA), las geometrías se normalizan a \texttt{MultiPolygon} con la regla de la mano
+derecha y se rechazan las inválidas o ubicadas fuera de la caja de Colombia. Los índices se crean antes de insertar,
+de modo que MongoDB también rechaza cualquier geometría que no pueda indexar.
+
+\begin{lstlisting}[style=lab,language=mongosh]
+db.municipalities.createIndex({ geometry: "2dsphere" }, { name: "geometry_2dsphere" })
+db.municipalities.createIndex({ pdet_subregion: 1 },    { name: "pdet_subregion_1" })
+\end{lstlisting}
+
+La carga queda registrada en \texttt{ingestion\_log} (archivo, filas leídas, insertadas y rechazadas, SHA-256 del
+archivo y fecha). Resultado: <N> municipios cargados de <N> esperados (170), <S> subregiones (16), <R> rechazados.
+
+\subsection{Evidencia del uso de los índices}
+Se ejecutaron consultas \texttt{\$geoIntersects}, \texttt{\$geoWithin} y \texttt{\$near} con
+\texttt{explain("executionStats")}, comparando el plan con el índice \texttt{2dsphere} frente a un recorrido
+completo forzado con \texttt{hint(\{\$natural: 1\})}. El Cuadro~\ref{tab:evidencia} resume los planes ganadores y
+los documentos examinados.
+
+\begin{table}[!htbp]
+\centering\small
+\input{../evidencia/spatial_evidence_table}   % generado por src/spatial_evidence.py
+\caption{Planes de ejecución de las consultas espaciales sobre \texttt{municipalities}.}
+\label{tab:evidencia}
+\end{table}
+
+Los controles automáticos (índice presente, número de municipios y subregiones, códigos DIVIPOLA de cinco
+dígitos, tipo \texttt{MultiPolygon}, y consultas punto-en-polígono cuyo resultado se verifica contra el municipio
+de origen) se reportan en \texttt{docs/evidencia/spatial\_evidence.md}. <Comentar aquí: con 170 documentos la
+diferencia de tiempo es pequeña, pero el plan cambia de \texttt{COLLSCAN} a \texttt{IXSCAN}; la ventaja crece en
+las colecciones de edificios (Entrega 3), con millones de documentos.>
