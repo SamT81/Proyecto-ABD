@@ -1,0 +1,31 @@
+% Sección para el informe de la Entrega 2. Se incluye con \input{fase2_seccion_integridad_etl}
+\section{Integridad Geométrica y Formateo del ETL}
+
+\subsection{Normalización espacial y reparación topológica}
+Una vez filtrada la capa municipal a los 170 municipios PDET (\texttt{data/mgn\_pdet\_2025.gpkg}), el módulo
+\texttt{src/utils/geo\_integrity.py} y el orquestador \texttt{src/01\_load\_municipalities.py} aseguran que
+cada registro cumpla los requisitos estrictos del índice \texttt{2dsphere} de MongoDB y del diccionario de
+datos definido en la Entrega~1:
+
+\begin{itemize}
+  \item \textbf{Reparación topológica y tipo uniforme:} toda geometría se valida y repara con
+  \texttt{shapely.validation.make\_valid}, descartando componentes degenerados y promoviendo polígonos
+  simples a \texttt{MultiPolygon}. Asimismo, se orientan los anillos exteriores en sentido antihorario
+  y los huecos en sentido horario (regla de la mano derecha) para evitar errores de indexación en
+  coordenadas esféricas.
+  \item \textbf{Doble sistema de referencia:} el área oficial en kilómetros cuadrados (\texttt{area\_km2}) se
+  calcula proyectando temporalmente a \textbf{EPSG:9377} (MAGNA-SIRGAS Origen Nacional) antes de transformar
+  definitivamente las geometrías a \textbf{EPSG:4326} (WGS84), redondeando coordenadas a 6 decimales
+  ($\approx 0.1$~m de precisión) para reducir el tamaño BSON sin pérdida geométrica apreciable.
+  \item \textbf{Validación de dominio y tamaño BSON:} se verifica que los 170 códigos DIVIPOLA tengan 5 dígitos
+  únicos, sin campos obligatorios nulos, que sus envolventes caigan dentro de la caja geográfica de Colombia
+  ($[-82^\circ, -5^\circ, -66^\circ, 14^\circ]$) y que ningún documento supere el umbral preventivo de
+  15.5~MB frente al límite de 16~MB de MongoDB.
+\end{itemize}
+
+\subsection{Salida estandarizada e ingesta idempotente}
+El script \texttt{src/01\_load\_municipalities.py} genera el archivo limpio
+\texttt{data/processed/pdet\_municipios.geojson} (consumido por la integración espacial), guarda la bitácora
+de validación en \texttt{docs/calidad/etl\_integrity\_report.json} y permite la carga directa e idempotente en
+\texttt{municipalities} mediante operaciones \texttt{ReplaceOne(..., upsert=True)} indexadas por \texttt{\_id}
+(DIVIPOLA).

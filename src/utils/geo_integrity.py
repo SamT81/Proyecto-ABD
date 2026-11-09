@@ -10,7 +10,10 @@ from typing import Any
 
 import geopandas as gpd
 from shapely.geometry import MultiPolygon, Polygon, mapping
+from shapely.geometry.polygon import orient
 from shapely.validation import make_valid
+
+COLOMBIA_BBOX = (-82.0, -5.0, -66.0, 14.0)
 
 
 def compute_sha256(file_path: Path, chunk_size: int = 1024 * 1024) -> str:
@@ -31,7 +34,7 @@ def normalize_divipola(code: Any) -> str:
 
 
 def repair_and_to_multipolygon(geom: Any) -> MultiPolygon | None:
-    """Repara geometrías inválidas y garantiza tipo MultiPolygon válido y no vacío."""
+    """Repara geometrías inválidas, orienta anillos (mano derecha) y devuelve MultiPolygon."""
     if geom is None or geom.is_empty:
         return None
 
@@ -41,24 +44,23 @@ def repair_and_to_multipolygon(geom: Any) -> MultiPolygon | None:
     if geom.is_empty:
         return None
 
+    parts: list[Polygon] = []
     if isinstance(geom, Polygon):
-        return MultiPolygon([geom])
-    if isinstance(geom, MultiPolygon):
-        return geom
+        parts = [geom]
+    elif isinstance(geom, MultiPolygon):
+        parts = list(geom.geoms)
+    elif hasattr(geom, "geoms"):
+        for g in geom.geoms:
+            if isinstance(g, Polygon) and not g.is_empty:
+                parts.append(g)
+            elif isinstance(g, MultiPolygon) and not g.is_empty:
+                parts.extend([p for p in g.geoms if not p.is_empty])
 
-    # En caso de GeometryCollection tras make_valid, extraer solo polígonos
-    if hasattr(geom, "geoms"):
-        polys = [g for g in geom.geoms if isinstance(g, (Polygon, MultiPolygon)) and not g.is_empty]
-        flat_polys: list[Polygon] = []
-        for p in polys:
-            if isinstance(p, Polygon):
-                flat_polys.append(p)
-            else:
-                flat_polys.extend(list(p.geoms))
-        if flat_polys:
-            return MultiPolygon(flat_polys)
+    if not parts:
+        return None
 
-    return None
+    oriented_parts = [orient(p, sign=1.0) for p in parts if not p.is_empty]
+    return MultiPolygon(oriented_parts) if oriented_parts else None
 
 
 def round_coordinates(coords: Any, precision: int = 6) -> Any:
@@ -66,6 +68,13 @@ def round_coordinates(coords: Any, precision: int = 6) -> Any:
     if isinstance(coords, (float, int)):
         return round(float(coords), precision)
     return [round_coordinates(c, precision) for c in coords]
+
+
+def validate_colombia_bbox(geom: MultiPolygon, bbox: tuple[float, float, float, float] = COLOMBIA_BBOX) -> bool:
+    """Verifica que la geometría en EPSG:4326 caiga dentro de la caja envolvente de Colombia."""
+    minx, miny, maxx, maxy = geom.bounds
+    bx0, by0, bx1, by1 = bbox
+    return bx0 <= minx and maxx <= bx1 and by0 <= miny and maxy <= by1
 
 
 def prepare_municipalities_gdf(
@@ -79,6 +88,7 @@ def prepare_municipalities_gdf(
 
     work = gdf.copy()
     work["divipola"] = work["divipola"].apply(normalize_divipola)
+    work["department_code"] = work["divipola"].str[:2]
 
     repaired_geoms = []
     rejected_count = 0
@@ -93,12 +103,16 @@ def prepare_municipalities_gdf(
     work["geometry"] = repaired_geoms
     work = work.dropna(subset=["geometry"]).copy()
 
-    # Cálculo de área oficial en proyección plana nacional (EPSG:9377)
     area_gdf = work.to_crs(area_crs)
     work["area_km2"] = (area_gdf.geometry.area / 1_000_000.0).round(4)
 
-    # Reproyección a WGS84 (EPSG:4326) exigida por índices 2dsphere de MongoDB
     storage_gdf = work.to_crs(storage_crs)
+    storage_gdf["geometry"] = storage_gdf["geometry"].apply(repair_and_to_multipolygon)
+
+    in_bounds = storage_gdf["geometry"].apply(validate_colombia_bbox)
+    rejected_count += int((~in_bounds).sum())
+    storage_gdf = storage_gdf[in_bounds].copy()
+
     return storage_gdf, rejected_count
 
 

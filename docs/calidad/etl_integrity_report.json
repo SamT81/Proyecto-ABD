@@ -1,0 +1,15 @@
+{
+  "generated_at": "2026-11-09T01:01:24.300027+00:00",
+  "input_file": "data/mgn_pdet_2025.gpkg",
+  "input_sha256": "e7dc64efb590fcea6764f49864f76e67b4d5512e57dbb3106bdba1edd0e8350a",
+  "output_geojson": "data/processed/pdet_municipios.geojson",
+  "output_sha256": "36f55f8f7fb026e80b7529c89057cdbdfeabe26e282485d2017689d4b0f6a00b",
+  "rows_read": 170,
+  "municipalities_valid": 170,
+  "subregions_count": 16,
+  "rows_rejected": 0,
+  "invalid_geometries_discarded": 0,
+  "total_area_km2_epsg9377": 389182.0359,
+  "max_document_bytes": 1237785,
+  "bson_limit_bytes": 16777216
+}

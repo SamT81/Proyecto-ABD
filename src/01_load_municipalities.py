@@ -1,10 +1,12 @@
-"""ETL Entrega 2: Validación de integridad y carga de municipios PDET en MongoDB."""
+"""ETL Entrega 2: Validación de integridad, exportación GeoJSON y carga PDET en MongoDB."""
 
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 import geopandas as gpd
@@ -100,10 +102,77 @@ def validate_pdet_integrity(gdf: gpd.GeoDataFrame) -> None:
         raise ValueError("Existen municipios con área calculada menor o igual a 0 km².")
 
 
+def export_clean_geojson(documents: list[dict], output_geojson: Path) -> None:
+    """Exporta FeatureCollection GeoJSON en EPSG:4326 con esquema estandarizado."""
+    output_geojson.parent.mkdir(parents=True, exist_ok=True)
+    features = []
+    for doc in documents:
+        features.append(
+            {
+                "type": "Feature",
+                "id": doc["_id"],
+                "properties": {
+                    "municipality_code": doc["_id"],
+                    "divipola": doc["_id"],
+                    "name": doc["name"],
+                    "department_code": doc["department_code"],
+                    "department_name": doc["department_name"],
+                    "pdet_subregion": doc["pdet_subregion"],
+                    "area_km2": doc["area_km2"],
+                    "mgn_version": doc["mgn_version"],
+                },
+                "geometry": doc["geometry"],
+            }
+        )
+
+    fc = {
+        "type": "FeatureCollection",
+        "name": "pdet_municipios",
+        "features": features,
+    }
+    output_geojson.write_text(json.dumps(fc, ensure_ascii=False), encoding="utf-8")
+
+
+def write_integrity_report(
+    report_path: Path,
+    mgn_path: Path,
+    input_sha256: str,
+    output_geojson: Path | None,
+    documents: list[dict],
+    rows_read: int,
+    rows_rejected: int,
+    rejected_geom: int,
+) -> None:
+    """Guarda métricas auditables de la ejecución ETL en JSON."""
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    doc_sizes = [len(json.dumps(d, ensure_ascii=False).encode("utf-8")) for d in documents]
+    subregions = sorted({d["pdet_subregion"] for d in documents})
+    total_area_km2 = round(sum(d["area_km2"] for d in documents), 4)
+
+    report = {
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "input_file": str(mgn_path),
+        "input_sha256": input_sha256,
+        "output_geojson": str(output_geojson) if output_geojson else None,
+        "output_sha256": compute_sha256(output_geojson) if output_geojson and output_geojson.exists() else None,
+        "rows_read": rows_read,
+        "municipalities_valid": len(documents),
+        "subregions_count": len(subregions),
+        "rows_rejected": rows_rejected,
+        "invalid_geometries_discarded": rejected_geom,
+        "total_area_km2_epsg9377": total_area_km2,
+        "max_document_bytes": max(doc_sizes) if doc_sizes else 0,
+        "bson_limit_bytes": 16_777_216,
+    }
+    report_path.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
+
+
 def run_etl(
     mgn_path: Path,
     pdet_catalog_path: Path | None,
     config_path: Path,
+    output_geojson: Path | None = Path("data/processed/pdet_municipios.geojson"),
+    report_path: Path | None = Path("docs/calidad/etl_integrity_report.json"),
     layer: str | None = None,
     dry_run: bool = False,
 ) -> None:
@@ -138,6 +207,23 @@ def run_etl(
         for _, row in clean_gdf.iterrows()
     ]
     rows_rejected = rows_read - len(documents)
+
+    if output_geojson is not None:
+        export_clean_geojson(documents, output_geojson)
+        print(f"[OK] GeoJSON limpio exportado en: {output_geojson}")
+
+    if report_path is not None:
+        write_integrity_report(
+            report_path=report_path,
+            mgn_path=mgn_path,
+            input_sha256=checksum,
+            output_geojson=output_geojson,
+            documents=documents,
+            rows_read=rows_read,
+            rows_rejected=rows_rejected,
+            rejected_geom=rejected_geom,
+        )
+        print(f"[OK] Reporte de integridad guardado en: {report_path}")
 
     print(
         f"[OK] Validación superada: {len(documents)} municipios PDET listos "
@@ -177,13 +263,25 @@ def run_etl(
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Valida e ingesta los 170 municipios PDET en MongoDB."
+        description="Valida, exporta GeoJSON limpio e ingesta los 170 municipios PDET en MongoDB."
     )
     parser.add_argument(
         "--input",
         type=Path,
         default=Path("data/mgn_pdet_2025.gpkg"),
-        help="Ruta al archivo espacial MGN (GeoPackage, Shapefile o GeoJSON).",
+        help="Ruta al archivo espacial MGN filtrado (GeoPackage, Shapefile o GeoJSON).",
+    )
+    parser.add_argument(
+        "--output-geojson",
+        type=Path,
+        default=Path("data/processed/pdet_municipios.geojson"),
+        help="Ruta de salida para el GeoJSON limpio en EPSG:4326.",
+    )
+    parser.add_argument(
+        "--report",
+        type=Path,
+        default=Path("docs/calidad/etl_integrity_report.json"),
+        help="Ruta del reporte JSON con métricas reales de validación.",
     )
     parser.add_argument(
         "--pdet-csv",
@@ -206,7 +304,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--dry-run",
         action="store_true",
-        help="Ejecuta validación y formateo sin escribir en MongoDB.",
+        help="Ejecuta validación y exportación GeoJSON sin escribir en MongoDB.",
     )
     return parser.parse_args()
 
@@ -218,6 +316,8 @@ if __name__ == "__main__":
             mgn_path=args.input,
             pdet_catalog_path=args.pdet_csv,
             config_path=args.config,
+            output_geojson=args.output_geojson,
+            report_path=args.report,
             layer=args.layer,
             dry_run=args.dry_run,
         )
