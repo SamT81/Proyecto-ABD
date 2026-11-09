@@ -1,0 +1,126 @@
+{
+  "fuente": "DANE - Marco Geoestadístico Nacional",
+  "version": "MGN2025",
+  "nivel": "municipio",
+  "pagina": "https://geoportal.dane.gov.co/servicios/descarga-y-metadatos/datos-geoestadisticos/?cod=111",
+  "url": "https://geoportal.dane.gov.co/descargas/mgn_2025/MGN2025_MPIO_GRAFICO.zip",
+  "archivo": "MGN2025_MPIO_GRAFICO.zip",
+  "verificado_utc": "2026-11-08T20:41:48+00:00",
+  "bytes": 71576494,
+  "sha256": "a3c01393059be8f2947de5e0a828faa4c7a43119819a667a8124854340bc141f",
+  "sha256_esperado": "a3c01393059be8f2947de5e0a828faa4c7a43119819a667a8124854340bc141f",
+  "controles": [
+    {
+      "control": "Tamaño = valor fijado en config",
+      "resultado": "OK",
+      "detalle": "71576494 / 71576494"
+    },
+    {
+      "control": "SHA-256 = valor fijado en config",
+      "resultado": "OK",
+      "detalle": "a3c01393059be8f2947de5e0a828faa4c7a43119819a667a8124854340bc141f"
+    },
+    {
+      "control": "CRC de los archivos del ZIP",
+      "resultado": "OK",
+      "detalle": "8 archivos sin errores"
+    },
+    {
+      "control": "Componentes del shapefile presentes",
+      "resultado": "OK",
+      "detalle": ".shp, .shx, .dbf, .prj, .cpg"
+    }
+  ],
+  "contenido_zip": [
+    {
+      "name": "MGN_ADM_MPIO_GRAFICO.shx",
+      "bytes": 9076,
+      "crc32": "a30612ca"
+    },
+    {
+      "name": "MGN_ADM_MPIO_GRAFICO.cpg",
+      "bytes": 5,
+      "crc32": "0e813c50"
+    },
+    {
+      "name": "MGN_ADM_MPIO_GRAFICO.dbf",
+      "bytes": 811592,
+      "crc32": "cf0d07fe"
+    },
+    {
+      "name": "MGN_ADM_MPIO_GRAFICO.prj",
+      "bytes": 145,
+      "crc32": "af437f55"
+    },
+    {
+      "name": "MGN_ADM_MPIO_GRAFICO.sbn",
+      "bytes": 11468,
+      "crc32": "73e95cfb"
+    },
+    {
+      "name": "MGN_ADM_MPIO_GRAFICO.sbx",
+      "bytes": 644,
+      "crc32": "7a6b5cdc"
+    },
+    {
+      "name": "MGN_ADM_MPIO_GRAFICO.shp",
+      "bytes": 99466040,
+      "crc32": "995e55cf"
+    },
+    {
+      "name": "MGN_ADM_MPIO_GRAFICO.shp.xml",
+      "bytes": 32118,
+      "crc32": "20238a96"
+    }
+  ],
+  "extraido_en": "data/raw/mgn2025_mpio",
+  "archivos_extraidos": [
+    {
+      "name": "MGN_ADM_MPIO_GRAFICO.cpg",
+      "bytes": 5,
+      "sha256": "3ad3031f5503a4404af825262ee8232cc04d4ea6683d42c5dd0a2f2a27ac9824"
+    },
+    {
+      "name": "MGN_ADM_MPIO_GRAFICO.dbf",
+      "bytes": 811592,
+      "sha256": "3a3d05f0d218fdffc1b606622d69878caf062d3277e3f450bedd6deb92f5f2be"
+    },
+    {
+      "name": "MGN_ADM_MPIO_GRAFICO.prj",
+      "bytes": 145,
+      "sha256": "a02a27b1d1982c8516d83398e85a3c8b1aef1713c13ef4d84d7bde17430c07c4"
+    },
+    {
+      "name": "MGN_ADM_MPIO_GRAFICO.sbn",
+      "bytes": 11468,
+      "sha256": "58e0d524ea22f7dbf2cdd47911dffe87a3226aeaa993c05f3c1e5abbde484fc3"
+    },
+    {
+      "name": "MGN_ADM_MPIO_GRAFICO.sbx",
+      "bytes": 644,
+      "sha256": "6f2ec211551ee9a4469c926ac8aac75d3fe5bb486f583a6b252dffc2dc65a673"
+    },
+    {
+      "name": "MGN_ADM_MPIO_GRAFICO.shp",
+      "bytes": 99466040,
+      "sha256": "69f873f5c5e56f747bfaf131dafa1e6bcd4bc8814a06a8ab8ad5cf662771bf52"
+    },
+    {
+      "name": "MGN_ADM_MPIO_GRAFICO.shp.xml",
+      "bytes": 32118,
+      "sha256": "02942a2b6b159c341b05cfdea8ec71acdb5c738cb148dd58c7238c7e744c89e0"
+    },
+    {
+      "name": "MGN_ADM_MPIO_GRAFICO.shx",
+      "bytes": 9076,
+      "sha256": "8493c112e0c7c6cc05242d381503c28c47c2750081fb6c205c832c8f1103bf74"
+    }
+  ],
+  "descarga": {
+    "fecha_utc": "2026-11-08T20:38:26+00:00",
+    "segundos": 1.3,
+    "http_last_modified": "Thu, 26 Mar 2026 02:03:20 GMT",
+    "http_etag": "\"69c493e8-4442bae\"",
+    "http_content_type": "application/zip"
+  }
+}

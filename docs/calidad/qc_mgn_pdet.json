@@ -1,0 +1,311 @@
+{
+  "generado_utc": "2026-11-08T20:42:01+00:00",
+  "fuente_url": "https://geoportal.dane.gov.co/descargas/mgn_2025/MGN2025_MPIO_GRAFICO.zip",
+  "fuente_sha256": "a3c01393059be8f2947de5e0a828faa4c7a43119819a667a8124854340bc141f",
+  "capa": "MGN_ADM_MPIO_GRAFICO.shp",
+  "mgn_unidades": 1122,
+  "crs": "EPSG:4326",
+  "catalogo": "config/pdet/pdet_municipios.csv",
+  "catalogo_sha256": "da1d087b460c5d4f76db3c05bc3dc8f79fbf6bec3127bbb3770f9e80d6c1d9d0",
+  "salida": "data/mgn_pdet_2025.gpkg",
+  "capa_salida": "municipios_pdet",
+  "salida_municipios": 170,
+  "salida_sha256": "2db5e6228f615b5287ede5e0fd726210b0f827d4ccd981829ca7670aee0ef89f",
+  "resumen": {
+    "OK": 31,
+    "AVISO": 1,
+    "FALLA": 0
+  },
+  "controles": [
+    {
+      "id": "SRC-01",
+      "control": "SHA-256 del ZIP verificado en la descarga",
+      "resultado": "OK",
+      "detalle": "a3c01393059be8f2947de5e0a828faa4c7a43119819a667a8124854340bc141f"
+    },
+    {
+      "id": "SRC-02",
+      "control": "Archivos extraídos sin cambios desde la descarga",
+      "resultado": "OK",
+      "detalle": "8 archivos coinciden con el manifiesto"
+    },
+    {
+      "id": "MGN-01",
+      "control": "Campos requeridos presentes en la capa",
+      "resultado": "OK",
+      "detalle": "dpto_ccdgo, mpio_ccdgo, mpio_cdpmp, dpto_cnmbr, mpio_cnmbr, mpio_tipo, mpio_narea"
+    },
+    {
+      "id": "MGN-02",
+      "control": "Sistema de referencia de la capa",
+      "resultado": "OK",
+      "detalle": "EPSG:4326 (esperado EPSG:4326)"
+    },
+    {
+      "id": "MGN-03",
+      "control": "Unidades en la capa municipal",
+      "resultado": "OK",
+      "detalle": "1122 (esperadas 1122)"
+    },
+    {
+      "id": "MGN-04",
+      "control": "mpio_cdpmp único",
+      "resultado": "OK",
+      "detalle": "0 duplicados"
+    },
+    {
+      "id": "MGN-05",
+      "control": "mpio_cdpmp con 5 dígitos",
+      "resultado": "OK",
+      "detalle": "0 inválidos"
+    },
+    {
+      "id": "MGN-06",
+      "control": "mpio_cdpmp = dpto_ccdgo + mpio_ccdgo",
+      "resultado": "OK",
+      "detalle": "0 incoherentes"
+    },
+    {
+      "id": "MGN-07",
+      "control": "Atributos y geometrías sin nulos",
+      "resultado": "OK",
+      "detalle": "0 nulos"
+    },
+    {
+      "id": "MGN-08",
+      "control": "Extensión dentro de la caja de Colombia",
+      "resultado": "OK",
+      "detalle": "[-81.7356, -4.2294, -66.8472, 13.3947]"
+    },
+    {
+      "id": "PDET-01",
+      "control": "Municipios en el listado PDET",
+      "resultado": "OK",
+      "detalle": "170 (esperados 170)"
+    },
+    {
+      "id": "PDET-02",
+      "control": "Códigos DIVIPOLA únicos en el listado",
+      "resultado": "OK",
+      "detalle": "sin duplicados"
+    },
+    {
+      "id": "PDET-03",
+      "control": "Códigos con formato de 5 dígitos",
+      "resultado": "OK",
+      "detalle": ""
+    },
+    {
+      "id": "PDET-04",
+      "control": "Subregiones PDET",
+      "resultado": "OK",
+      "detalle": "16 (esperadas 16)"
+    },
+    {
+      "id": "PDET-05",
+      "control": "Prefijo del código municipal = código de departamento",
+      "resultado": "OK",
+      "detalle": ""
+    },
+    {
+      "id": "PDET-06",
+      "control": "Campos sin valores nulos",
+      "resultado": "OK",
+      "detalle": "0 nulos"
+    },
+    {
+      "id": "JOIN-01",
+      "control": "Códigos PDET encontrados en el MGN",
+      "resultado": "OK",
+      "detalle": "170/170"
+    },
+    {
+      "id": "JOIN-02",
+      "control": "Departamento del listado = departamento del MGN",
+      "resultado": "OK",
+      "detalle": ""
+    },
+    {
+      "id": "JOIN-03",
+      "control": "Nombre del municipio coincide (sin tildes)",
+      "resultado": "AVISO",
+      "detalle": "19418: MGN 'LÓPEZ DE MICAY' / ART 'LÓPEZ'; 19548: MGN 'PIENDAMÓ - TUNÍA' / ART 'PIENDAMÓ'; 50711: MGN 'VISTAHERMOSA' / ART 'VISTA HERMOSA'; 70523: MGN 'PALMITO' / ART 'SAN ANTONIO DE PALMITO'; 70823: MGN 'SAN JOSÉ DE TOLUVIEJO' / ART 'TOLÚ VIEJO'; 86573: MGN 'PUERTO LEGUÍZAMO' / ART 'LEGUÍZAMO'"
+    },
+    {
+      "id": "GEO-01",
+      "control": "Municipios PDET en la capa filtrada",
+      "resultado": "OK",
+      "detalle": "170 (esperados 170)"
+    },
+    {
+      "id": "GEO-02",
+      "control": "Un polígono por código",
+      "resultado": "OK",
+      "detalle": ""
+    },
+    {
+      "id": "GEO-03",
+      "control": "Tipos de geometría Polygon/MultiPolygon",
+      "resultado": "OK",
+      "detalle": "{\"Polygon\": 168, \"MultiPolygon\": 2}"
+    },
+    {
+      "id": "GEO-04",
+      "control": "Geometrías no vacías",
+      "resultado": "OK",
+      "detalle": "0 vacías"
+    },
+    {
+      "id": "GEO-05",
+      "control": "Geometrías válidas (OGC)",
+      "resultado": "OK",
+      "detalle": "170 válidas"
+    },
+    {
+      "id": "GEO-06",
+      "control": "Área en EPSG:9377 vs mpio_narea del DANE",
+      "resultado": "OK",
+      "detalle": "diferencia máx. 0.000% (52520 FRANCISCO PIZARRO), media 0.000%"
+    },
+    {
+      "id": "GEO-07",
+      "control": "Áreas positivas",
+      "resultado": "OK",
+      "detalle": "total PDET 389,182 km²"
+    },
+    {
+      "id": "GEO-08",
+      "control": "Sin solapes entre municipios PDET vecinos",
+      "resultado": "OK",
+      "detalle": "339 pares vecinos revisados"
+    },
+    {
+      "id": "GEO-09",
+      "control": "Tamaño de la geometría por documento",
+      "resultado": "OK",
+      "detalle": "máx. 2.20 MB (18756, 51,716 vértices); vértices totales 1,556,026"
+    },
+    {
+      "id": "GEO-10",
+      "control": "Tipo de entidad territorial (mpio_tipo)",
+      "resultado": "OK",
+      "detalle": "{\"MUNICIPIO\": 170}"
+    },
+    {
+      "id": "OUT-01",
+      "control": "GeoPackage releído con los mismos municipios",
+      "resultado": "OK",
+      "detalle": "170 registros"
+    },
+    {
+      "id": "OUT-02",
+      "control": "CRS de la salida",
+      "resultado": "OK",
+      "detalle": "EPSG:4326"
+    },
+    {
+      "id": "OUT-03",
+      "control": "Salida sin atributos nulos",
+      "resultado": "OK",
+      "detalle": "0 nulos"
+    }
+  ],
+  "subregiones": [
+    {
+      "pdet_subregion_id": 1,
+      "pdet_subregion": "ALTO PATÍA Y NORTE DEL CAUCA",
+      "municipios": 24,
+      "area_km2": 13177.76
+    },
+    {
+      "pdet_subregion_id": 2,
+      "pdet_subregion": "ARAUCA",
+      "municipios": 4,
+      "area_km2": 10539.5
+    },
+    {
+      "pdet_subregion_id": 3,
+      "pdet_subregion": "BAJO CAUCA Y NORDESTE ANTIOQUEÑO",
+      "municipios": 13,
+      "area_km2": 17615.23
+    },
+    {
+      "pdet_subregion_id": 4,
+      "pdet_subregion": "CATATUMBO",
+      "municipios": 8,
+      "area_km2": 9237.61
+    },
+    {
+      "pdet_subregion_id": 5,
+      "pdet_subregion": "CHOCÓ",
+      "municipios": 14,
+      "area_km2": 29548.36
+    },
+    {
+      "pdet_subregion_id": 6,
+      "pdet_subregion": "CUENCA DEL CAGUÁN Y PIEDEMONTE CAQUETEÑO",
+      "municipios": 17,
+      "area_km2": 93298.42
+    },
+    {
+      "pdet_subregion_id": 7,
+      "pdet_subregion": "MACARENA - GUAVIARE",
+      "municipios": 12,
+      "area_km2": 96168.8
+    },
+    {
+      "pdet_subregion_id": 8,
+      "pdet_subregion": "MONTES DE MARÍA",
+      "municipios": 15,
+      "area_km2": 6406.94
+    },
+    {
+      "pdet_subregion_id": 9,
+      "pdet_subregion": "PACÍFICO MEDIO",
+      "municipios": 4,
+      "area_km2": 14302.09
+    },
+    {
+      "pdet_subregion_id": 10,
+      "pdet_subregion": "PACÍFICO Y FRONTERA NARIÑENSE",
+      "municipios": 11,
+      "area_km2": 17118.57
+    },
+    {
+      "pdet_subregion_id": 11,
+      "pdet_subregion": "PUTUMAYO",
+      "municipios": 9,
+      "area_km2": 25062.65
+    },
+    {
+      "pdet_subregion_id": 12,
+      "pdet_subregion": "SIERRA NEVADA - PERIJÁ",
+      "municipios": 15,
+      "area_km2": 20414.93
+    },
+    {
+      "pdet_subregion_id": 13,
+      "pdet_subregion": "SUR DE BOLÍVAR",
+      "municipios": 7,
+      "area_km2": 10331.9
+    },
+    {
+      "pdet_subregion_id": 14,
+      "pdet_subregion": "SUR DE CÓRDOBA",
+      "municipios": 5,
+      "area_km2": 9581.16
+    },
+    {
+      "pdet_subregion_id": 15,
+      "pdet_subregion": "SUR DEL TOLIMA",
+      "municipios": 4,
+      "area_km2": 6918.87
+    },
+    {
+      "pdet_subregion_id": 16,
+      "pdet_subregion": "URABÁ ANTIOQUEÑO",
+      "municipios": 8,
+      "area_km2": 9459.26
+    }
+  ]
+}
