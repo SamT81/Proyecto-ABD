@@ -1,0 +1,15 @@
+\begin{tabular}{p{0.34\linewidth}p{0.28\linewidth}rrr}
+\toprule
+Consulta & Plan ganador & Docs (índice) & Docs (sin índice) & Devueltos \\
+\midrule
+\texttt{punto\_en\_poligono[05031]} & FETCH/IXSCAN & 1 & 170 & 1 \\
+\texttt{punto\_en\_poligono[13688]} & FETCH/IXSCAN & 1 & 170 & 1 \\
+\texttt{punto\_en\_poligono[19548]} & FETCH/IXSCAN & 2 & 170 & 1 \\
+\texttt{punto\_en\_poligono[47001]} & FETCH/IXSCAN & 1 & 170 & 1 \\
+\texttt{punto\_en\_poligono[54800]} & FETCH/IXSCAN & 1 & 170 & 1 \\
+\texttt{punto\_en\_el\_oceano} & FETCH/IXSCAN & 0 & 170 & 0 \\
+\texttt{ventana\_geoWithin} & FETCH/IXSCAN & 34 & 170 & 18 \\
+\texttt{vecinos\_geoIntersects} & FETCH/IXSCAN & 5 & 170 & 1 \\
+\texttt{cercanos\_near} & GEO\_NEAR\_2DSPHERE/FETCH/IXSCAN/FETCH/IXSCAN/FETCH/IXSCAN & 335 & -- & 18 \\
+\bottomrule
+\end{tabular}

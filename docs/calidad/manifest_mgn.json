@@ -5,7 +5,7 @@
   "pagina": "https://geoportal.dane.gov.co/servicios/descarga-y-metadatos/datos-geoestadisticos/?cod=111",
   "url": "https://geoportal.dane.gov.co/descargas/mgn_2025/MGN2025_MPIO_GRAFICO.zip",
   "archivo": "MGN2025_MPIO_GRAFICO.zip",
-  "verificado_utc": "2026-11-08T20:41:48+00:00",
+  "verificado_utc": "2026-11-09T14:20:44+00:00",
   "bytes": 71576494,
   "sha256": "a3c01393059be8f2947de5e0a828faa4c7a43119819a667a8124854340bc141f",
   "sha256_esperado": "a3c01393059be8f2947de5e0a828faa4c7a43119819a667a8124854340bc141f",

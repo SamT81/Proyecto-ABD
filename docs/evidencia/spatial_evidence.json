@@ -1,0 +1,450 @@
+{
+  "generated_at": "2026-11-09T14:22:21.932553+00:00",
+  "mongo_version": "7.0.45",
+  "database": "upme_solar",
+  "collection": "municipalities",
+  "documents": 170,
+  "indexes": [
+    {
+      "name": "_id_",
+      "key": {
+        "_id": 1
+      }
+    },
+    {
+      "name": "geometry_2dsphere",
+      "key": {
+        "geometry": "2dsphere"
+      }
+    },
+    {
+      "name": "pdet_subregion_1",
+      "key": {
+        "pdet_subregion": 1
+      }
+    }
+  ],
+  "municipalities_per_subregion": {
+    "ALTO PATÍA Y NORTE DEL CAUCA": 24,
+    "ARAUCA": 4,
+    "BAJO CAUCA Y NORDESTE ANTIOQUEÑO": 13,
+    "CATATUMBO": 8,
+    "CHOCÓ": 14,
+    "CUENCA DEL CAGUÁN Y PIEDEMONTE CAQUETEÑO": 17,
+    "MACARENA - GUAVIARE": 12,
+    "MONTES DE MARÍA": 15,
+    "PACÍFICO MEDIO": 4,
+    "PACÍFICO Y FRONTERA NARIÑENSE": 11,
+    "PUTUMAYO": 9,
+    "SIERRA NEVADA - PERIJÁ": 15,
+    "SUR DE BOLÍVAR": 7,
+    "SUR DE CÓRDOBA": 5,
+    "SUR DEL TOLIMA": 4,
+    "URABÁ ANTIOQUEÑO": 8
+  },
+  "checks": [
+    {
+      "check": "índice 2dsphere en geometry",
+      "ok": true,
+      "detail": "[{\"_id_\": {\"_id\": 1}}, {\"geometry_2dsphere\": {\"geometry\": \"2dsphere\"}}, {\"pdet_subregion_1\": {\"pdet_subregion\": 1}}]"
+    },
+    {
+      "check": "número de municipios",
+      "ok": true,
+      "detail": "170 cargados, 170 esperados"
+    },
+    {
+      "check": "número de subregiones PDET",
+      "ok": true,
+      "detail": "16 encontradas, 16 esperadas"
+    },
+    {
+      "check": "códigos DIVIPOLA de 5 dígitos",
+      "ok": true,
+      "detail": "0 inválidos"
+    },
+    {
+      "check": "geometrías MultiPolygon",
+      "ok": true,
+      "detail": "0 con otro tipo"
+    },
+    {
+      "check": "punto_en_poligono[05031]: usa índice 2dsphere",
+      "ok": true,
+      "detail": "etapas=['FETCH', 'IXSCAN'] índice=geometry_2dsphere claves=9 docs=1 devueltos=1"
+    },
+    {
+      "check": "punto_en_poligono[13688]: usa índice 2dsphere",
+      "ok": true,
+      "detail": "etapas=['FETCH', 'IXSCAN'] índice=geometry_2dsphere claves=9 docs=1 devueltos=1"
+    },
+    {
+      "check": "punto_en_poligono[19548]: usa índice 2dsphere",
+      "ok": true,
+      "detail": "etapas=['FETCH', 'IXSCAN'] índice=geometry_2dsphere claves=11 docs=2 devueltos=1"
+    },
+    {
+      "check": "punto_en_poligono[47001]: usa índice 2dsphere",
+      "ok": true,
+      "detail": "etapas=['FETCH', 'IXSCAN'] índice=geometry_2dsphere claves=6 docs=1 devueltos=1"
+    },
+    {
+      "check": "punto_en_poligono[54800]: usa índice 2dsphere",
+      "ok": true,
+      "detail": "etapas=['FETCH', 'IXSCAN'] índice=geometry_2dsphere claves=9 docs=1 devueltos=1"
+    },
+    {
+      "check": "punto_en_el_oceano: usa índice 2dsphere",
+      "ok": true,
+      "detail": "etapas=['FETCH', 'IXSCAN'] índice=geometry_2dsphere claves=0 docs=0 devueltos=0"
+    },
+    {
+      "check": "ventana_geoWithin: usa índice 2dsphere",
+      "ok": true,
+      "detail": "etapas=['FETCH', 'IXSCAN'] índice=geometry_2dsphere claves=525 docs=34 devueltos=18"
+    },
+    {
+      "check": "vecinos_geoIntersects: usa índice 2dsphere",
+      "ok": true,
+      "detail": "etapas=['FETCH', 'IXSCAN'] índice=geometry_2dsphere claves=52 docs=5 devueltos=1"
+    },
+    {
+      "check": "cercanos_near: usa índice 2dsphere",
+      "ok": true,
+      "detail": "etapas=['GEO_NEAR_2DSPHERE', 'FETCH', 'IXSCAN', 'FETCH', 'IXSCAN', 'FETCH', 'IXSCAN'] índice=geometry_2dsphere claves=388 docs=335 devueltos=18"
+    }
+  ],
+  "queries": [
+    {
+      "query": "punto_en_poligono[05031]",
+      "description": "$geoIntersects con un punto interior de AMALFI debe devolver ese municipio",
+      "plan_index": {
+        "stages": [
+          "FETCH",
+          "IXSCAN"
+        ],
+        "index_used": "geometry_2dsphere",
+        "uses_index": true,
+        "collscan": false,
+        "keys_examined": 9,
+        "docs_examined": 1,
+        "n_returned": 1,
+        "millis": 4
+      },
+      "plan_collscan": {
+        "stages": [
+          "COLLSCAN"
+        ],
+        "index_used": null,
+        "uses_index": false,
+        "collscan": true,
+        "keys_examined": 0,
+        "docs_examined": 170,
+        "n_returned": 1,
+        "millis": 316
+      },
+      "returned_ids": [
+        "05031"
+      ],
+      "n_returned": 1,
+      "expected_ok": true
+    },
+    {
+      "query": "punto_en_poligono[13688]",
+      "description": "$geoIntersects con un punto interior de SANTA ROSA DEL SUR debe devolver ese municipio",
+      "plan_index": {
+        "stages": [
+          "FETCH",
+          "IXSCAN"
+        ],
+        "index_used": "geometry_2dsphere",
+        "uses_index": true,
+        "collscan": false,
+        "keys_examined": 9,
+        "docs_examined": 1,
+        "n_returned": 1,
+        "millis": 2
+      },
+      "plan_collscan": {
+        "stages": [
+          "COLLSCAN"
+        ],
+        "index_used": null,
+        "uses_index": false,
+        "collscan": true,
+        "keys_examined": 0,
+        "docs_examined": 170,
+        "n_returned": 1,
+        "millis": 316
+      },
+      "returned_ids": [
+        "13688"
+      ],
+      "n_returned": 1,
+      "expected_ok": true
+    },
+    {
+      "query": "punto_en_poligono[19548]",
+      "description": "$geoIntersects con un punto interior de PIENDAMÓ - TUNÍA debe devolver ese municipio",
+      "plan_index": {
+        "stages": [
+          "FETCH",
+          "IXSCAN"
+        ],
+        "index_used": "geometry_2dsphere",
+        "uses_index": true,
+        "collscan": false,
+        "keys_examined": 11,
+        "docs_examined": 2,
+        "n_returned": 1,
+        "millis": 3
+      },
+      "plan_collscan": {
+        "stages": [
+          "COLLSCAN"
+        ],
+        "index_used": null,
+        "uses_index": false,
+        "collscan": true,
+        "keys_examined": 0,
+        "docs_examined": 170,
+        "n_returned": 1,
+        "millis": 324
+      },
+      "returned_ids": [
+        "19548"
+      ],
+      "n_returned": 1,
+      "expected_ok": true
+    },
+    {
+      "query": "punto_en_poligono[47001]",
+      "description": "$geoIntersects con un punto interior de SANTA MARTA debe devolver ese municipio",
+      "plan_index": {
+        "stages": [
+          "FETCH",
+          "IXSCAN"
+        ],
+        "index_used": "geometry_2dsphere",
+        "uses_index": true,
+        "collscan": false,
+        "keys_examined": 6,
+        "docs_examined": 1,
+        "n_returned": 1,
+        "millis": 6
+      },
+      "plan_collscan": {
+        "stages": [
+          "COLLSCAN"
+        ],
+        "index_used": null,
+        "uses_index": false,
+        "collscan": true,
+        "keys_examined": 0,
+        "docs_examined": 170,
+        "n_returned": 1,
+        "millis": 308
+      },
+      "returned_ids": [
+        "47001"
+      ],
+      "n_returned": 1,
+      "expected_ok": true
+    },
+    {
+      "query": "punto_en_poligono[54800]",
+      "description": "$geoIntersects con un punto interior de TEORAMA debe devolver ese municipio",
+      "plan_index": {
+        "stages": [
+          "FETCH",
+          "IXSCAN"
+        ],
+        "index_used": "geometry_2dsphere",
+        "uses_index": true,
+        "collscan": false,
+        "keys_examined": 9,
+        "docs_examined": 1,
+        "n_returned": 1,
+        "millis": 4
+      },
+      "plan_collscan": {
+        "stages": [
+          "COLLSCAN"
+        ],
+        "index_used": null,
+        "uses_index": false,
+        "collscan": true,
+        "keys_examined": 0,
+        "docs_examined": 170,
+        "n_returned": 1,
+        "millis": 323
+      },
+      "returned_ids": [
+        "54800"
+      ],
+      "n_returned": 1,
+      "expected_ok": true
+    },
+    {
+      "query": "punto_en_el_oceano",
+      "description": "punto en el Atlántico (lon -30, lat 0): no debe caer en ningún municipio",
+      "plan_index": {
+        "stages": [
+          "FETCH",
+          "IXSCAN"
+        ],
+        "index_used": "geometry_2dsphere",
+        "uses_index": true,
+        "collscan": false,
+        "keys_examined": 0,
+        "docs_examined": 0,
+        "n_returned": 0,
+        "millis": 0
+      },
+      "plan_collscan": {
+        "stages": [
+          "COLLSCAN"
+        ],
+        "index_used": null,
+        "uses_index": false,
+        "collscan": true,
+        "keys_examined": 0,
+        "docs_examined": 170,
+        "n_returned": 0,
+        "millis": 313
+      },
+      "returned_ids": [],
+      "n_returned": 0,
+      "expected_ok": true
+    },
+    {
+      "query": "ventana_geoWithin",
+      "description": "$geoWithin con una ventana de 1° alrededor de AMALFI",
+      "plan_index": {
+        "stages": [
+          "FETCH",
+          "IXSCAN"
+        ],
+        "index_used": "geometry_2dsphere",
+        "uses_index": true,
+        "collscan": false,
+        "keys_examined": 525,
+        "docs_examined": 34,
+        "n_returned": 18,
+        "millis": 78
+      },
+      "plan_collscan": {
+        "stages": [
+          "COLLSCAN"
+        ],
+        "index_used": null,
+        "uses_index": false,
+        "collscan": true,
+        "keys_examined": 0,
+        "docs_examined": 170,
+        "n_returned": 18,
+        "millis": 319
+      },
+      "returned_ids": [
+        "05893",
+        "13160",
+        "05604",
+        "05736",
+        "13688",
+        "05250",
+        "05895",
+        "05040",
+        "05031",
+        "05120",
+        "05790",
+        "05854",
+        "05107",
+        "23580",
+        "23466",
+        "23682",
+        "05154",
+        "05495"
+      ],
+      "n_returned": 18,
+      "expected_ok": true
+    },
+    {
+      "query": "vecinos_geoIntersects",
+      "description": "municipios que tocan o se solapan con AMALFI (incluye el propio)",
+      "plan_index": {
+        "stages": [
+          "FETCH",
+          "IXSCAN"
+        ],
+        "index_used": "geometry_2dsphere",
+        "uses_index": true,
+        "collscan": false,
+        "keys_examined": 52,
+        "docs_examined": 5,
+        "n_returned": 1,
+        "millis": 122
+      },
+      "plan_collscan": {
+        "stages": [
+          "COLLSCAN"
+        ],
+        "index_used": null,
+        "uses_index": false,
+        "collscan": true,
+        "keys_examined": 0,
+        "docs_examined": 170,
+        "n_returned": 1,
+        "millis": 405
+      },
+      "returned_ids": [
+        "05031"
+      ],
+      "n_returned": 1,
+      "expected_ok": true
+    },
+    {
+      "query": "cercanos_near",
+      "description": "municipios a menos de 100000 m de AMALFI",
+      "plan_index": {
+        "stages": [
+          "GEO_NEAR_2DSPHERE",
+          "FETCH",
+          "IXSCAN",
+          "FETCH",
+          "IXSCAN",
+          "FETCH",
+          "IXSCAN"
+        ],
+        "index_used": "geometry_2dsphere",
+        "uses_index": true,
+        "collscan": false,
+        "keys_examined": 388,
+        "docs_examined": 335,
+        "n_returned": 18,
+        "millis": 80
+      },
+      "returned_ids": [
+        "05031",
+        "05604",
+        "05040",
+        "05736",
+        "05895",
+        "05790",
+        "05120",
+        "05854",
+        "05250",
+        "05893",
+        "05107",
+        "05361",
+        "13688",
+        "05154",
+        "13670",
+        "13160",
+        "05495",
+        "23682"
+      ],
+      "n_returned": 18,
+      "expected_ok": true
+    }
+  ]
+}

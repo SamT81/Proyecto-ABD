@@ -1,0 +1,281 @@
+\documentclass[12pt, letterpaper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish, es-tabla]{babel}
+\usepackage{geometry}
+\geometry{top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm}
+\usepackage{lmodern}
+\usepackage{graphicx}
+\graphicspath{{recursos/}{./}}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage[table]{xcolor}
+\usepackage{hyperref}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{listings}
+\usepackage[most]{tcolorbox}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta}
+
+% Configuración de marcos para imágenes
+\setlength{\fboxsep}{0pt}
+\setlength{\fboxrule}{0.6pt}
+
+% Configuración de colores y estilo para código
+\definecolor{codebg}{gray}{0.96}
+\definecolor{codecomment}{HTML}{2F5D8C}
+\definecolor{codestring}{HTML}{C00000}
+\definecolor{codekeyword}{HTML}{007F00}
+
+\lstdefinelanguage{mongosh}{
+  morekeywords={const,let,var,function,return,true,false,null},
+  morecomment=[l]{//},
+  morestring=[b]",
+  sensitive=true}
+
+\lstdefinestyle{lab}{
+  basicstyle=\fontsize{9}{11}\selectfont\ttfamily,
+  backgroundcolor=\color{codebg},
+  numbers=left, numberstyle=\fontsize{7}{8}\selectfont\color{gray}, numbersep=7pt,
+  commentstyle=\itshape\color{codecomment},
+  keywordstyle=\color{codekeyword},
+  stringstyle=\color{codestring},
+  showstringspaces=false, breaklines=true, keepspaces=true,
+  frame=single, framerule=0pt, rulecolor=\color{codebg}, framesep=5pt,
+  xleftmargin=14pt, xrightmargin=0pt,
+  aboveskip=8pt, belowskip=8pt,
+  extendedchars=true,
+  literate={á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+           {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+           {ñ}{{\~n}}1 {Ñ}{{\~N}}1 {ü}{{\"u}}1 {¿}{{?`}}1 {¡}{{!`}}1
+}
+
+% ----- columnas de tabla
+\newcolumntype{Y}[1]{>{\raggedright\arraybackslash}p{\dimexpr #1\linewidth-2\tabcolsep\relax}}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!70!black,
+    citecolor=blue!70!black,
+    urlcolor=blue!70!black,
+    pdftitle={Proyecto Final - Entrega 2: Fronteras PDET e integración espacial},
+    pdfauthor={Samuel Tovar, Juan Romero, Carlos Pinzón Caicedo, Alejandro Padilla Gaviria}
+}
+
+\begin{document}
+
+% ==========================================
+% PORTADA ACADÉMICA
+% ==========================================
+\begin{titlepage}
+    \centering
+    \vspace*{0.5cm}
+
+    {\huge \textbf{Administración de Bases de Datos}}\\[0.4cm]
+    {\Large \textbf{Proyecto Final: Potencial Solar de Techos en Municipios PDET}}\\[1.2cm]
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.5\linewidth]{logo_javeriana.png}
+        \label{fig:logo}
+    \end{figure}
+
+    {\large \textbf{Estudiantes:}}\\[0.2cm]
+    {\large Samuel Tovar}\\[0.1cm]
+    {\large Juan Romero}\\[0.1cm]
+    {\large Carlos Pinzón Caicedo}\\[0.1cm]
+    {\large Alejandro Padilla Gaviria}\\[0.8cm]
+
+    {\large \textbf{Entrega 2:}}\\[0.2cm]
+    {\large Fronteras PDET (DANE MGN 2025) e Integración Espacial en MongoDB}\\[1.2cm]
+
+    \vfill
+
+    {\Large \textbf{Pontificia Universidad Javeriana}}\\[0.6cm]
+
+    {\large 9 de noviembre de 2026}
+\end{titlepage}
+
+\clearpage
+
+% ==========================================
+% ÍNDICES
+% ==========================================
+\tableofcontents
+\vspace{0.8cm}
+\listoffigures
+\vspace{0.8cm}
+\listoftables
+\clearpage
+
+% ==========================================
+% SECCIÓN 1: INTRODUCCIÓN
+% ==========================================
+\section{Introducción}
+
+Esta entrega integra al proyecto los límites de los 170 municipios PDET, tomados de la capa municipal del Marco Geoestadístico Nacional 2025 del DANE, y los deja cargados en MongoDB con índices espaciales. Es la base sobre la que, en las entregas siguientes, se asignarán las huellas de edificios a cada municipio y se calcularán el número de techos y su área. El enunciado evalúa tres aspectos, que el Cuadro~\ref{tab:criterios} relaciona con las secciones del informe y con los archivos del repositorio (\url{https://github.com/SamT81/Proyecto-ABD}).
+
+\begin{table}[H]
+\centering
+\small
+\rowcolors{2}{gray!12}{white}
+\begin{tabularx}{\textwidth}{Y{0.25} Y{0.14} Y{0.38} Y{0.23}}
+\toprule
+\textbf{Criterio del enunciado} & \textbf{Sección} & \textbf{Archivos principales} & \textbf{Rama} \\
+\midrule
+Adquisición y verificación de los datos & 2 & \texttt{00a\_download\_mgn.py}, \texttt{00b\_build\_pdet\_catalog.py}, \texttt{00c\_filter\_pdet.py}, \texttt{docs/calidad/} & \texttt{feat/pdet-acquisition} \\
+Integridad y formato para la ingesta & 3 & \texttt{01\_load\_municipalities.py}, \texttt{utils/geo\_integrity.py} & \texttt{feat/pdet-integrity-etl} \\
+Integración espacial NoSQL (índices) & 4 & \texttt{load\_to\_mongo.py}, \texttt{pdet\_mongo.py}, \texttt{spatial\_evidence.py} & \texttt{feat/spatial-mongo} \\
+\bottomrule
+\end{tabularx}
+\caption{Criterios de evaluación de la Entrega 2 y su ubicación en el informe y en el repositorio.}
+\label{tab:criterios}
+\end{table}
+
+\subsection{Flujo de la entrega}
+La Figura~\ref{fig:flujo} muestra el recorrido de los datos. Cada etapa verifica su entrada y se detiene con un error si un control falla, de modo que no llegan datos dudosos a la etapa siguiente.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  node distance=5mm and 7mm,
+  box/.style={draw, rounded corners=2pt, fill=blue!6, align=center, font=\footnotesize,
+              minimum width=2.6cm, minimum height=1.05cm},
+  arr/.style={-{Stealth[length=2mm]}, thick}]
+  \node[box] (a) {Descarga y\\verificación\\\texttt{00a}};
+  \node[box, right=of a] (b) {Filtro PDET y\\controles\\\texttt{00c}};
+  \node[box, right=of b] (c) {ETL de integridad\\\texttt{01\_load\_}\\\texttt{municipalities}};
+  \node[box, right=of c] (d) {Carga e índices\\\texttt{load\_to\_}\\\texttt{mongo}};
+  \node[box, below=of d, fill=green!8] (e) {Evidencia\\\texttt{spatial\_}\\\texttt{evidence}};
+  \node[font=\scriptsize, below=1mm of a, align=center] {MGN2025\\(DANE)};
+  \node[font=\scriptsize, below=1mm of b, align=center] {\texttt{.gpkg}\\170 municipios};
+  \node[font=\scriptsize, below=1mm of c, align=center] {\texttt{.geojson}\\EPSG:4326};
+  \draw[arr] (a)--(b); \draw[arr] (b)--(c); \draw[arr] (c)--(d); \draw[arr] (d)--(e);
+\end{tikzpicture}
+\caption{Flujo de la Entrega 2: de la descarga del MGN2025 a la evidencia de los índices en MongoDB.}
+\label{fig:flujo}
+\end{figure}
+
+% ==========================================
+% SECCIÓN 2: ADQUISICIÓN Y VERIFICACIÓN
+% ==========================================
+\newpage
+
+\section{Adquisición y Verificación de los Datos}
+
+\subsection{Fuentes y mecanismo de descarga}
+Los límites municipales se toman del Marco Geoestadístico Nacional 2025 del DANE. En el plan de la Entrega~1 se previó descargar el ZIP completo (1.5~GB, todos los niveles geográficos), pero el geoportal publica el nivel municipio por separado (\texttt{MGN2025\_MPIO\_GRAFICO.zip}, 71.6~MB, Shapefile en WGS84) con la misma versión y la misma capa, por lo que se descarga solo ese archivo. El listado de los 170 municipios PDET y su subregión se toma de la Agencia de Renovación del Territorio (Decreto 893 de 2017).
+
+La descarga la hace \texttt{src/00a\_download\_mgn.py}: lee el archivo por bloques de 1~MB a un temporal \texttt{.part}, reintenta y reanuda con cabecera \texttt{Range} si la conexión se corta, y solo renombra el archivo cuando su tamaño coincide con el \texttt{Content-Length} del servidor. La URL, las rutas y los valores de referencia están en \texttt{config/acquisition.yaml}, no en el código.
+
+\begin{lstlisting}[style=lab]
+python src/00a_download_mgn.py      # descarga y verifica (si ya existe, solo verifica)
+python src/00c_filter_pdet.py       # filtro PDET y controles -> data/mgn_pdet_2025.gpkg
+python src/01_load_municipalities.py
+\end{lstlisting}
+
+\subsection{Verificación de integridad}
+El DANE no publica un \emph{checksum} oficial. Por eso, en la primera descarga (08/11/2026) se fijó en la configuración el SHA-256 del ZIP (\texttt{a3c01393\ldots bc141f}), su tamaño (71\,576\,494 bytes) y las cabeceras \texttt{Last-Modified} y \texttt{ETag}. Cada corrida recalcula el SHA-256 y falla si no coincide, lo que garantiza que todo el equipo procese exactamente los mismos bytes y detecta si el DANE reemplaza el archivo. Además se valida el CRC de los ocho archivos del ZIP y la presencia de los componentes del Shapefile (\texttt{.shp}, \texttt{.shx}, \texttt{.dbf}, \texttt{.prj}, \texttt{.cpg}). El SHA-256 de cada archivo extraído queda en \texttt{docs/calidad/manifest\_mgn.json} y se vuelve a comprobar antes del filtrado.
+
+\subsection{Filtro PDET y controles de calidad}
+\texttt{src/00c\_filter\_pdet.py} cruza la capa municipal (1\,122 unidades) con el listado PDET por código DIVIPOLA. En el Excel de la ART los códigos de Antioquia aparecen sin el cero inicial (\texttt{5490} en lugar de \texttt{05490}), así que se normalizan a cinco dígitos antes del cruce. El Cuadro~\ref{tab:qc_mgn} resume los 32 controles; el detalle está en \texttt{docs/calidad/qc\_mgn\_pdet.md}.
+
+\begin{table}[H]
+\centering
+\small
+\rowcolors{2}{gray!12}{white}
+\begin{tabularx}{\textwidth}{l X c}
+\toprule
+\textbf{Grupo} & \textbf{Controles} & \textbf{Resultado} \\
+\midrule
+Fuente & SHA-256 del ZIP verificado; archivos extraídos sin cambios & 2 OK \\
+Capa MGN & Campos requeridos; CRS EPSG:4326; 1\,122 unidades; código único, de 5 dígitos y coherente con el departamento; sin nulos; extensión dentro de Colombia & 8 OK \\
+Listado PDET & 170 municipios; códigos únicos y de 5 dígitos; 16 subregiones; prefijo coherente; sin nulos & 6 OK \\
+Cruce & 170/170 códigos encontrados; departamento coincide; nombre coincide & 2 OK, 1 AVISO \\
+Geometría & 170 polígonos únicos, no vacíos y válidos; área EPSG:9377 vs.\ \texttt{mpio\_narea} (diferencia 0.000\,\%); sin solapes (339 pares vecinos); geometría más pesada 2.2~MB (límite BSON 16~MB) & 10 OK \\
+Salida & GeoPackage releído: 170 registros, EPSG:4326, sin nulos & 3 OK \\
+\bottomrule
+\end{tabularx}
+\caption{Controles de calidad sobre el MGN2025 filtrado a los municipios PDET (31 OK, 1 AVISO, 0 FALLA).}
+\label{tab:qc_mgn}
+\end{table}
+
+El único aviso corresponde a seis municipios cuyo nombre en el listado de la ART difiere del nombre oficial del MGN2025. Como el cruce es por código, no afecta el resultado; se conserva el nombre del MGN. Los 170 municipios suman 389\,182~km$^2$ en 16 subregiones. La salida, \texttt{data/mgn\_pdet\_2025.gpkg} (EPSG:4326, geometrías \texttt{MultiPolygon}), es la entrada del ETL de integridad.
+
+% ==========================================
+% SECCIÓN 3: INTEGRIDAD GEOMÉTRICA Y ETL
+% ==========================================
+\section{Integridad Geométrica y Formateo del ETL}
+
+\subsection{Normalización espacial y reparación topológica}
+Una vez filtrada la capa municipal a los 170 municipios PDET (\texttt{data/mgn\_pdet\_2025.gpkg}), el módulo \texttt{src/utils/geo\_integrity.py} y el orquestador \texttt{src/01\_load\_municipalities.py} aseguran que cada registro cumpla los requisitos estrictos del índice \texttt{2dsphere} de MongoDB y del diccionario de datos definido en la Entrega~1:
+
+\begin{itemize}
+  \item \textbf{Reparación topológica y tipo uniforme:} toda geometría se valida y repara con \texttt{shapely.validation.make\_valid}, descartando componentes degenerados y promoviendo polígonos simples a \texttt{MultiPolygon}. Asimismo, se orientan los anillos exteriores en sentido antihorario y los huecos en sentido horario (regla de la mano derecha) para evitar errores de indexación en coordenadas esféricas.
+  \item \textbf{Doble sistema de referencia:} el área oficial en kilómetros cuadrados (\texttt{area\_km2}) se calcula proyectando temporalmente a \textbf{EPSG:9377} (MAGNA-SIRGAS Origen Nacional) antes de transformar definitivamente las geometrías a \textbf{EPSG:4326} (WGS84), redondeando coordenadas a 7 decimales ($\approx 1.1$~cm de precisión) para reducir el tamaño BSON sin pérdida geométrica apreciable y evitando auto-intersecciones de anillos.
+  \newpage
+  \item \textbf{Validación de dominio y tamaño BSON:} se verifica que los 170 códigos DIVIPOLA tengan 5 dígitos únicos, sin campos obligatorios nulos, que sus envolventes caigan dentro de la caja geográfica de Colombia ($[-82^\circ, -5^\circ, -66^\circ, 14^\circ]$) y que ningún documento supere el umbral preventivo de 15.5~MB frente al límite de 16~MB de MongoDB.
+\end{itemize}
+
+\subsection{Salida estandarizada e ingesta idempotente}
+El script \texttt{src/01\_load\_municipalities.py} genera el archivo limpio \texttt{data/processed/pdet\_municipios.geojson} (consumido por la integración espacial), guarda la bitácora de validación en \texttt{docs/calidad/etl\_integrity\_report.json} y permite la carga directa e idempotente en \texttt{municipalities} mediante operaciones \texttt{ReplaceOne(..., upsert=True)} indexadas por \texttt{\_id} (DIVIPOLA).
+
+El ETL se validó con los datos reales del MGN2025: leyó 170 municipios, los 170 resultaron válidos (0 rechazados, 0 geometrías descartadas), en 16 subregiones y con un área total de 389\,182.04~km$^2$ calculada en EPSG:9377. El documento más grande pesa unos 1.24~MB, muy por debajo del límite BSON de 16~MB. Su bitácora queda en \texttt{docs/calidad/etl\_integrity\_report.json}, con el SHA-256 del archivo de entrada y del GeoJSON de salida.
+
+% ==========================================
+% SECCIÓN 4: INTEGRACIÓN ESPACIAL EN MONGODB
+% ==========================================
+\section{Integración Espacial en MongoDB}
+
+\subsection{Carga e índices}
+Los municipios PDET limpios (GeoJSON en EPSG:4326, producido por el ETL de integridad) se cargan en la colección \texttt{municipalities} con \texttt{src/load\_to\_mongo.py}. La carga es idempotente (\emph{upsert} por \texttt{\_id}, el código DIVIPOLA), las geometrías se normalizan a \texttt{MultiPolygon} con la regla de la mano derecha y se rechazan las inválidas o ubicadas fuera de la caja de Colombia. Los índices se crean antes de insertar, de modo que MongoDB también rechaza cualquier geometría que no pueda indexar.
+
+\begin{lstlisting}[style=lab,language=mongosh]
+db.municipalities.createIndex({ geometry: "2dsphere" }, { name: "geometry_2dsphere" })
+db.municipalities.createIndex({ pdet_subregion: 1 },    { name: "pdet_subregion_1" })
+\end{lstlisting}
+
+La carga queda registrada en \texttt{ingestion\_log} (archivo, filas leídas, insertadas y rechazadas, SHA-256 del archivo y fecha). Resultado: 170 municipios cargados de 170 esperados, 16 subregiones, 0 rechazados.
+
+\subsection{Evidencia del uso de los índices}
+Se ejecutaron consultas \texttt{\$geoIntersects}, \texttt{\$geoWithin} y \texttt{\$near} con \texttt{explain("executionStats")}, comparando el plan con el índice \texttt{2dsphere} frente a un recorrido completo forzado con \texttt{hint(\{\$natural: 1\})}. El Cuadro~\ref{tab:evidencia} resume los planes ganadores y los documentos examinados.
+
+\begin{table}[H]
+\centering
+\small
+\rowcolors{2}{gray!12}{white}
+\begin{tabularx}{\textwidth}{X l r r r}
+\toprule
+\textbf{Consulta} & \textbf{Plan ganador} & \textbf{Docs (índice)} & \textbf{Docs (sin índice)} & \textbf{Devueltos} \\
+\midrule
+\texttt{punto\_en\_poligono[05031]} & FETCH/IXSCAN & 1 & 170 & 1 \\
+\texttt{punto\_en\_poligono[13688]} & FETCH/IXSCAN & 1 & 170 & 1 \\
+\texttt{punto\_en\_poligono[19548]} & FETCH/IXSCAN & 2 & 170 & 1 \\
+\texttt{punto\_en\_poligono[47001]} & FETCH/IXSCAN & 1 & 170 & 1 \\
+\texttt{punto\_en\_poligono[54800]} & FETCH/IXSCAN & 1 & 170 & 1 \\
+\texttt{punto\_en\_el\_oceano} & FETCH/IXSCAN & 0 & 170 & 0 \\
+\texttt{ventana\_geoWithin} & FETCH/IXSCAN & 34 & 170 & 18 \\
+\texttt{vecinos\_geoIntersects} & FETCH/IXSCAN & 5 & 170 & 1 \\
+\texttt{cercanos\_near} & GEO\_NEAR\_2DSPHERE... & 335 & -- & 18 \\
+\bottomrule
+\end{tabularx}
+\caption{Planes de ejecución de las consultas espaciales sobre \texttt{municipalities}.}
+\label{tab:evidencia}
+\end{table}
+
+Los controles automáticos (índice presente, número de municipios y subregiones, códigos DIVIPOLA de cinco dígitos, tipo \texttt{MultiPolygon}, y consultas punto-en-polígono cuyo resultado se verifica contra el municipio de origen) se reportan en \texttt{docs/evidencia/spatial\_evidence.md}. Con 170 documentos la diferencia de tiempo es pequeña, pero el plan cambia de \texttt{COLLSCAN} a \texttt{IXSCAN}; la ventaja crecerá exponencialmente en las colecciones de edificios (Entrega 3), con millones de documentos.
+
+% ==========================================
+% SECCIÓN 5: CONCLUSIONES Y SIGUIENTES PASOS
+% ==========================================
+\section{Conclusiones y Siguientes Pasos}
+
+\begin{itemize}
+  \item Los límites de los 170 municipios PDET provienen del MGN2025 con una descarga reproducible y verificada por SHA-256, y pasaron 31 controles de calidad sin fallas (un aviso por diferencias de nombre con el listado de la ART, que no afecta el cruce por código DIVIPOLA).
+  \item El ETL entrega geometrías válidas, orientadas, en EPSG:4326, con el área calculada en EPSG:9377, lista para el índice \texttt{2dsphere}; no fue necesario simplificar ni partir ningún municipio tras ajustar a 7 decimales.
+  \item La integración espacial crea los índices antes de la carga, registra cada ingesta en \texttt{ingestion\_log} y automatiza la evidencia con \texttt{explain()} para comparar el plan con índice frente al recorrido completo.
+  \item \textbf{Limitación:} el tamaño de esta colección (170 documentos) hace que las diferencias de tiempo entre \texttt{IXSCAN} y \texttt{COLLSCAN} sean pequeñas; el beneficio del índice se medirá con las colecciones de edificios de la Entrega~3.
+  \item \textbf{Siguientes pasos:} cargar las huellas de Microsoft y Google por lotes, asignar a cada edificio su \texttt{municipality\_code} con el punto representativo, y hacer el análisis exploratorio (Entrega~3).
+\end{itemize}
+
+\end{document}

@@ -119,13 +119,19 @@ def prepare_municipalities_gdf(
 def build_municipality_document(
     row: Any,
     mgn_version: str = "MGN2025",
-    coord_precision: int = 6,
+    coord_precision: int = 7,
 ) -> dict[str, Any]:
     """Construye un documento compatible con la colección `municipalities`."""
+    from shapely.geometry import shape
+
     geojson_geom = mapping(row.geometry)
-    geojson_geom = {
+    rounded_coords = round_coordinates(geojson_geom["coordinates"], coord_precision)
+    rebuilt = repair_and_to_multipolygon(
+        shape({"type": geojson_geom["type"], "coordinates": rounded_coords})
+    )
+    geojson_geom = mapping(rebuilt) if rebuilt is not None else {
         "type": geojson_geom["type"],
-        "coordinates": round_coordinates(geojson_geom["coordinates"], coord_precision),
+        "coordinates": rounded_coords,
     }
 
     divipola = normalize_divipola(row["divipola"])

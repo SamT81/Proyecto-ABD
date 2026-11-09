@@ -1,15 +1,15 @@
 # Controles de calidad: MGN2025 nivel municipio filtrado a municipios PDET
 
-Generado por `src/00c_filter_pdet.py` el 2026-11-08T20:42:01+00:00.
+Generado por `src/00c_filter_pdet.py` el 2026-11-09T14:20:53+00:00.
 
 | Elemento | Valor |
 |---|---|
 | Fuente | https://geoportal.dane.gov.co/descargas/mgn_2025/MGN2025_MPIO_GRAFICO.zip |
 | SHA-256 del ZIP | `a3c01393059be8f2947de5e0a828faa4c7a43119819a667a8124854340bc141f` |
 | Capa leída | `MGN_ADM_MPIO_GRAFICO.shp` (1122 unidades, EPSG:4326) |
-| Listado PDET | `config/pdet/pdet_municipios.csv` (SHA-256 `da1d087b460c5d4f...`) |
+| Listado PDET | `config/pdet/pdet_municipios.csv` (SHA-256 `582e2bd9b6ed0bc9...`) |
 | Salida | `data/mgn_pdet_2025.gpkg` (capa `municipios_pdet`, 170 municipios) |
-| SHA-256 de la salida | `2db5e6228f615b5287ede5e0fd726210b0f827d4ccd981829ca7670aee0ef89f` |
+| SHA-256 de la salida | `eedd7bf2c0d2e272de6e36d47bd9c007fc740b6f5b1d5705f8c84fb0b2a36637` |
 | Resultado | 31 OK, 1 AVISO, 0 FALLA |
 
 ## Controles
