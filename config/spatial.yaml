@@ -1,0 +1,20 @@
+# Parámetros de la integración espacial (Entrega 2). La URI y la base vienen de config/params.yaml.
+input:
+  # Salida del ETL de integridad (rama feat/pdet-integrity-etl): FeatureCollection GeoJSON en EPSG:4326
+  municipalities_geojson: "data/processed/pdet_municipios.geojson"
+  mgn_version: "MGN2025"
+
+collections:
+  municipalities: "municipalities"
+  ingestion_log: "ingestion_log"
+
+validation:
+  # Caja que contiene a Colombia (lon/lat). Detecta coordenadas invertidas o en metros (EPSG:9377).
+  bbox: [-82.0, -5.0, -66.0, 14.0]
+  expected_municipalities: 170
+  expected_subregions: 16
+
+evidence:
+  out_dir: "docs/evidencia"
+  sample_size: 5            # municipios usados como puntos de prueba
+  near_max_distance_m: 100000
