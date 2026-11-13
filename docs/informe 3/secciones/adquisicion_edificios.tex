@@ -1,0 +1,65 @@
+% Sección del informe de la Entrega 3: adquisición y verificación de las huellas de edificios.
+% Usa los paquetes y el estilo de código (lab) del informe de la Entrega 2. Se incluye con \input.
+
+\section{Adquisición y Verificación de las Huellas de Edificios}
+
+\subsection{Fuentes y selección de particiones}
+Se usan los dos datasets elegidos en la Entrega~1. Microsoft Global ML Building Footprints (ODbL) se publica partido por país y por \emph{quadkey} de nivel~9 (teselas Web Mercator de unos 78~km de lado), en archivos de GeoJSON por líneas comprimidos. Google Open Buildings v3 (CC BY 4.0 y ODbL) se publica en celdas S2 de nivel~4, en archivos CSV comprimidos con la geometría en WKT.
+
+Ninguna fuente se descarga completa. Siguiendo el criterio de filtrar en origen, \texttt{src/00d\_select\_building\_partitions.py} cruza el índice de cada fuente con los 170 polígonos PDET de la Entrega~2 (ampliados en 0.01$^\circ$, unos 1.1~km, para no perder edificios cuyo punto representativo cae en PDET pero que la fuente guardó en la partición vecina). Para Microsoft se usa \texttt{dataset-links.csv} (país, quadkey, URL y tamaño) y cada quadkey se convierte en su caja lon/lat; para Google, el polígono de cada celda en \texttt{tiles.geojson} y el listado del bucket público, que trae el tamaño y el MD5 de cada objeto. El resultado se versiona en \texttt{config/buildings/particiones\_pdet.csv} (Cuadro~\ref{tab:particiones}).
+
+\begin{table}[H]
+\centering
+\small
+\rowcolors{2}{gray!12}{white}
+\begin{tabularx}{\textwidth}{X r r}
+\toprule
+ & \textbf{Microsoft} & \textbf{Google} \\
+\midrule
+Particiones disponibles & 232 quadkeys de Colombia & 333 celdas S2 \\
+Particiones que tocan PDET & 125 & 8 \\
+Tamaño descargado (comprimido) & 373.4~MB & 3\,110.1~MB \\
+Tamaño descomprimido & 1.6~GB & 8.1~GB \\
+Registros en los archivos & 4\,595\,615 & 31\,499\,115 \\
+Municipios PDET por partición (mín.--mediana--máx.) & 1--3--15 & 1--11--82 \\
+\bottomrule
+\end{tabularx}
+\caption{Particiones seleccionadas por fuente. Se omiten los 107 quadkeys de Colombia que no tocan PDET y de Google se descarga el 1.7\,\% del dataset.}
+\label{tab:particiones}
+\end{table}
+
+\subsection{Mecanismo de descarga}
+\texttt{src/00e\_download\_buildings.py} baja los 133 archivos con cuatro hilos. Antes de cada descarga hace una petición \texttt{HEAD} para obtener tamaño, \texttt{Last-Modified}, \texttt{ETag} y, en Microsoft, el \texttt{Content-MD5}. Cada archivo se escribe en un temporal \texttt{.part}, se reanuda con \texttt{Range} si la conexión se corta y solo toma su nombre final cuando el tamaño coincide. Un archivo que ya existe y cuyo MD5 sigue coincidiendo con el publicado no se vuelve a bajar, de modo que el script se puede repetir sin costo y detecta si la fuente publica una versión nueva. La descarga completa tomó unos tres minutos.
+
+\begin{lstlisting}[style=lab]
+python src/00d_select_building_partitions.py   # catálogo de particiones que tocan PDET
+python src/00e_download_buildings.py           # descarga y verificación (~3.5 GB)
+python src/00e_download_buildings.py --verify  # solo verifica lo que ya está en data/raw
+\end{lstlisting}
+
+\subsection{Verificación de integridad y controles de calidad}
+A diferencia del MGN, ambas fuentes publican un MD5 por archivo, así que la verificación se hace contra el valor oficial y no contra uno fijado en la primera descarga. El Cuadro~\ref{tab:qc_edificios} resume los 24 controles; el detalle por archivo (URL, fecha, cabeceras HTTP, MD5 esperado y obtenido, SHA-256 y número de registros) está en \texttt{docs/calidad/manifest\_buildings.json} y \texttt{docs/calidad/qc\_buildings\_acquisition.md}.
+
+\begin{table}[H]
+\centering
+\small
+\rowcolors{2}{gray!12}{white}
+\begin{tabularx}{\textwidth}{l X c}
+\toprule
+\textbf{Grupo} & \textbf{Controles} & \textbf{Resultado} \\
+\midrule
+Selección & 170 municipios PDET de entrada en EPSG:4326; índice de Microsoft con un archivo por quadkey; celdas de Google con tamaño y MD5 publicados; tamaño de \texttt{tiles.geojson} igual al del bucket; \textbf{los 170 municipios cubiertos por al menos una partición de cada fuente} & 10 OK \\
+Descarga Microsoft & 125/125 archivos; tamaño igual a \texttt{Content-Length} y al índice; MD5 igual a \texttt{Content-MD5} (95/95 con MD5 publicado); gzip íntegro; primera línea es un \texttt{Feature} con \texttt{Polygon} & 7 OK \\
+Descarga Google & 8/8 archivos; tamaño igual a \texttt{Content-Length} y al bucket; MD5 igual a \texttt{md5Hash} (8/8); gzip íntegro; cabecera CSV esperada & 7 OK \\
+\bottomrule
+\end{tabularx}
+\caption{Controles de la adquisición de huellas de edificios (24 OK, 0 AVISO, 0 FALLA).}
+\label{tab:qc_edificios}
+\end{table}
+
+Hallazgos de la verificación:
+\begin{itemize}
+  \item 30 de los 125 archivos de Microsoft, todos mayores de 4~MB, no traen \texttt{Content-MD5}: Azure solo lo publica para los objetos subidos en una sola operación. Para ellos la integridad se verifica con el tamaño exacto del servidor y el CRC del gzip, que se comprueba descomprimiendo el archivo completo.
+  \item Los archivos de Microsoft tienen fecha del 03/02/2026 y los de Google del 23/06/2023 (versión~3). Las celdas de Google incluyen edificios de Venezuela, Ecuador y Panamá; se descartan en el ETL antes de interpretar la geometría.
+  \item En Microsoft, \texttt{height} vale $-1$ (sin dato) en todos los registros descargados y \texttt{confidence} solo tiene valor en 176 de 4\,595\,615. Por eso el criterio de confianza solo se aplica a Google, como se previó en el esquema.
+\end{itemize}

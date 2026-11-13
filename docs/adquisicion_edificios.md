@@ -92,8 +92,9 @@ Selección: **10 OK, 0 AVISO, 0 FALLA**. Descarga: **14 OK, 0 AVISO, 0 FALLA**. 
 * **Versiones:** los archivos de Microsoft tienen `Last-Modified` del 03/02/2026 (índice subido el 23/02/2026);
   los de Google, del 23/06/2023 (versión 3). Si cualquiera de las dos fuentes publica una versión nueva, el MD5
   cambia y `00e` vuelve a descargar el archivo y lo registra en el manifiesto.
-* Microsoft trae `height` y `confidence` en las propiedades, pero en Colombia vienen en `-1` (sin dato); el
-  esquema de `buildings_microsoft` no los incluye.
+* Microsoft trae `height` y `confidence` en las propiedades, pero `height` vale `-1` (sin dato) en todos los
+  registros descargados y `confidence` solo tiene valor en 176 de 4 595 615. Por eso el esquema de
+  `buildings_microsoft` no los incluye y el umbral de confianza solo se aplica a Google.
 
 ## Contrato de salida
 
