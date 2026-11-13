@@ -1,0 +1,50 @@
+# Parámetros de adquisición de huellas de edificios (Entrega 3).
+# Las rutas son relativas a la raíz del repositorio.
+
+pdet:
+  # Salida de src/00c_filter_pdet.py (Entrega 2): 170 polígonos en EPSG:4326
+  gpkg: "data/mgn_pdet_2025.gpkg"
+  layer: "municipios_pdet"
+  expected_municipalities: 170
+
+sources:
+  microsoft:
+    nombre: "Microsoft Global ML Building Footprints"
+    licencia: "ODbL v1.0"
+    pagina: "https://planetarycomputer.microsoft.com/dataset/ms-buildings"
+    # Índice oficial de particiones (una fila por país y quadkey de nivel 9)
+    index_url: "https://minedbuildings.z5.web.core.windows.net/global-buildings/dataset-links.csv"
+    index_file: "data/raw/microsoft/dataset-links.csv"
+    location: "Colombia"
+    raw_dir: "data/raw/microsoft"
+    formato: "GeoJSON por líneas comprimido (.csv.gz)"
+  google:
+    nombre: "Google Open Buildings v3"
+    licencia: "CC BY 4.0 y ODbL v1.0"
+    pagina: "https://sites.research.google/gr/open-buildings/"
+    # Geometría de las celdas S2 de nivel 4 en las que Google parte el dataset
+    tiles_url: "https://openbuildings-public-dot-gweb-research.uw.r.appspot.com/public/tiles.geojson"
+    tiles_file: "data/raw/google/tiles.geojson"
+    # Listado del bucket público con tamaño y MD5 de cada objeto (API JSON de Cloud Storage)
+    bucket_api: "https://storage.googleapis.com/storage/v1/b/open-buildings-data/o"
+    prefix: "v3/polygons_s2_level_4_gzip/"
+    raw_dir: "data/raw/google"
+    formato: "CSV comprimido (.csv.gz) con geometría WKT"
+
+selection:
+  # Catálogo versionado de particiones que intersectan algún municipio PDET
+  catalog_csv: "config/buildings/particiones_pdet.csv"
+  # Margen en grados alrededor de cada municipio al cruzar con las particiones (~1 km).
+  # Cubre edificios cuyo punto representativo cae dentro del municipio pero cuya partición
+  # se asignó por un vértice que queda fuera.
+  buffer_deg: 0.01
+
+download:
+  workers: 4
+  retries: 3
+  timeout_s: 120
+
+output:
+  manifest: "docs/calidad/manifest_buildings.json"
+  qc_json: "docs/calidad/qc_buildings_acquisition.json"
+  qc_md: "docs/calidad/qc_buildings_acquisition.md"
