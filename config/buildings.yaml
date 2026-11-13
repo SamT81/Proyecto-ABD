@@ -48,3 +48,15 @@ output:
   manifest: "docs/calidad/manifest_buildings.json"
   qc_json: "docs/calidad/qc_buildings_acquisition.json"
   qc_md: "docs/calidad/qc_buildings_acquisition.md"
+
+etl:
+  # Salida: GeoParquet por fuente y partición, que lee la carga a MongoDB
+  out_dir: "data/processed/buildings"
+  chunk_rows: 200000         # filas leídas por bloque (memoria acotada por proceso)
+  row_group_size: 50000      # filas por row group del Parquet (lotes de insert_many en la carga)
+  coord_precision: 6         # decimales de las coordenadas (~0.1 m)
+  # Google: margen alrededor de cada municipio para descartar filas por su lat/lon antes de leer el WKT.
+  # La asignación final usa el punto representativo de la geometría, no este margen.
+  prefilter_deg: 0.002
+  report_json: "docs/calidad/etl_buildings_report.json"
+  report_md: "docs/calidad/etl_buildings_report.md"
