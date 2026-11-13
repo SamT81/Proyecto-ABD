@@ -1,0 +1,73 @@
+% Sección del informe de la Entrega 3: ETL de huellas de edificios (integridad y formato).
+% Usa los paquetes y el estilo de código (lab) del informe de la Entrega 2. Se incluye con \input.
+
+\section{Integridad y Formato de las Huellas de Edificios (ETL)}
+
+\subsection{Transformación}
+\texttt{src/01b\_etl\_buildings.py} convierte los 133 archivos verificados en documentos con los campos exactos de \texttt{buildings\_microsoft} y \texttt{buildings\_google} (Entrega~1). Cada partición se procesa en un proceso aparte y por bloques de 200\,000 filas, de modo que la memoria no depende del tamaño del archivo (las celdas de Google llegan a 1.8~GB descomprimidas). Para cada edificio:
+
+\begin{itemize}
+  \item \textbf{Prefiltro (Google):} cada fila trae la latitud y longitud de su centroide; antes de interpretar el WKT se descartan las que quedan a más de 0.002$^\circ$ (unos 220~m) de cualquier municipio PDET. Esto evita construir geometrías para el 91\,\% de las filas, que son de otros municipios o de países vecinos.
+  \item \textbf{Reparación:} las geometrías inválidas se reparan con \texttt{make\_valid}; si quedan varias partes se conserva el polígono de mayor área, porque el esquema define \texttt{Polygon}. El campo \texttt{is\_valid\_geom} queda en \texttt{false} para estos casos.
+  \item \textbf{Asignación de municipio:} se calcula el punto representativo (\texttt{point\_on\_surface}, siempre dentro del polígono) y se busca el municipio PDET que lo contiene con un \texttt{STRtree} y una prueba punto-en-polígono sobre los polígonos preparados. Así cada edificio pertenece a un solo municipio, también los que cruzan un límite, y la agregación de la Entrega~4 no necesita un \emph{join} espacial.
+  \item \textbf{Área:} se mide en EPSG:9377 sobre la geometría reparada, antes de redondear. En Microsoft es el \texttt{area\_m2} del documento; en Google se conserva \texttt{area\_in\_meters} y el área recalculada se usa como control.
+  \item \textbf{Formato para \texttt{2dsphere}:} coordenadas a 6 decimales (unos 0.1~m) con \texttt{set\_precision}, que ajusta a la grilla sin romper la validez, y anillo exterior antihorario (regla de la mano derecha).
+\end{itemize}
+
+La salida es GeoParquet (EPSG:4326, WKB, compresión zstd) en \texttt{data/processed/buildings/}, con una carpeta por fuente y partición (por ejemplo \texttt{google/8e3/}), en \emph{row groups} de 50\,000 filas que la carga recorre como lotes de \texttt{insert\_many} sin leer la partición completa. Cada partición se escribe en una carpeta temporal que se renombra al terminar y deja un \texttt{\_SUCCESS.json} con el SHA-256 del archivo de entrada: si se vuelve a ejecutar, las particiones cuyo archivo no cambió no se reprocesan.
+
+\begin{lstlisting}[style=lab]
+python src/01b_etl_buildings.py                    # ambas fuentes, 4 procesos
+python src/01b_etl_buildings.py --source google --force
+\end{lstlisting}
+
+\subsection{Resultados y controles}
+La corrida completa tomó 194~s. El Cuadro~\ref{tab:etl_edificios} resume los conteos y el Cuadro~\ref{tab:qc_etl} los controles, que se hacen releyendo la salida escrita y no sobre los datos en memoria. El detalle por partición y por municipio está en \texttt{docs/calidad/etl\_buildings\_report.json}.
+
+\begin{table}[H]
+\centering
+\small
+\rowcolors{2}{gray!12}{white}
+\begin{tabularx}{\textwidth}{X r r}
+\toprule
+ & \textbf{Microsoft} & \textbf{Google} \\
+\midrule
+Registros leídos & 4\,595\,615 & 31\,499\,115 \\
+Fuera de PDET (descartados) & 2\,834\,572 & 28\,804\,333 \\
+Reparados con \texttt{make\_valid} & 28 & 0 \\
+Multiparte reducidos a su polígono mayor & 22 & 11 \\
+Rechazados (irrecuperables o colapsados al redondear) & 0 & 0 \\
+\textbf{Edificios en PDET} & \textbf{1\,761\,043} & \textbf{2\,694\,782} \\
+Municipios PDET con edificios & 170 & 165 \\
+\bottomrule
+\end{tabularx}
+\caption{Resultado del ETL por fuente.}
+\label{tab:etl_edificios}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\rowcolors{2}{gray!12}{white}
+\begin{tabularx}{\textwidth}{l X c}
+\toprule
+\textbf{Id} & \textbf{Control (por fuente)} & \textbf{Resultado} \\
+\midrule
+ETL-1 & Todas las particiones procesadas (125 y 8) & OK \\
+ETL-2 & Salida releída: columnas del esquema, EPSG:4326, solo \texttt{Polygon} válidos, códigos dentro de los 170 PDET, sin nulos & OK \\
+ETL-3 & Registros releídos = registros escritos & OK \\
+ETL-4 & Municipios PDET con al menos un edificio & OK / AVISO (Google 165/170) \\
+ETL-5 & Geometrías rechazadas menores al 0.1\,\% & OK \\
+ETL-6 & Sin geometrías duplicadas exactas dentro de cada fuente & OK \\
+ETL-7 & \texttt{area\_in\_meters} de Google coherente con el área en EPSG:9377 & OK \\
+\bottomrule
+\end{tabularx}
+\caption{Controles del ETL de edificios (12 OK, 1 AVISO, 0 FALLA).}
+\label{tab:qc_etl}
+\end{table}
+
+\begin{itemize}
+  \item \textbf{Hueco de cobertura de Google:} no hay edificios de Google en Murindó, Vigía del Fuerte, Bojayá, Medio San Juan y Nóvita. Se verificó recorriendo las celdas \texttt{8e3} y \texttt{8e5} completas sin prefiltro: hay 52\,167 edificios en los alrededores pero ninguno dentro de estos municipios, mientras que Microsoft tiene entre 1\,331 y 2\,004 en cada uno. La comparación entre fuentes de la Entrega~4 debe tratarlos como ausencia de datos y no como municipios sin edificios.
+  \item \textbf{Área de Google:} la diferencia relativa con el área en EPSG:9377 es casi constante (mediana absoluta 0.39\,\%, p95 0.54\,\%, media con signo $-0.37$\,\%). Una diferencia tan estable corresponde a un cambio de escala por el método de cálculo y no a geometrías distintas; se conserva \texttt{area\_in\_meters}, como define el esquema.
+  \item Ambas fuentes tienen geometrías de buena calidad: solo 28 inválidas en Microsoft, todas reparables, y ninguna en Google.
+\end{itemize}
