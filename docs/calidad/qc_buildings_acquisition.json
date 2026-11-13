@@ -1,0 +1,184 @@
+{
+  "seleccion": {
+    "generado_utc": "2026-11-13T22:32:17+00:00",
+    "resumen": {
+      "OK": 10,
+      "AVISO": 0,
+      "FALLA": 0
+    },
+    "controles": [
+      {
+        "id": "SEL-01",
+        "control": "Municipios PDET de entrada",
+        "resultado": "OK",
+        "detalle": "170 (esperados 170), EPSG:4326"
+      },
+      {
+        "id": "SEL-02",
+        "control": "Particiones de Microsoft para Colombia",
+        "resultado": "OK",
+        "detalle": "232 quadkeys de nivel 9 en el índice (subido 2026-02-23)"
+      },
+      {
+        "id": "SEL-03",
+        "control": "Un archivo por quadkey en el índice",
+        "resultado": "OK",
+        "detalle": "0 quadkeys repetidos"
+      },
+      {
+        "id": "SEL-04",
+        "control": "Quadkeys de Microsoft que tocan PDET",
+        "resultado": "OK",
+        "detalle": "125 de 232 (~373.1 MB de ~678.7 MB del país)"
+      },
+      {
+        "id": "SEL-05",
+        "control": "Municipios PDET cubiertos por particiones de Microsoft",
+        "resultado": "OK",
+        "detalle": "170/170"
+      },
+      {
+        "id": "SEL-06",
+        "control": "Objetos del bucket de Google = celdas de tiles.geojson",
+        "resultado": "OK",
+        "detalle": "333 objetos / 333 celdas S2"
+      },
+      {
+        "id": "SEL-07",
+        "control": "Celdas seleccionadas con archivo en el bucket",
+        "resultado": "OK",
+        "detalle": "todas tienen tamaño y MD5 publicados"
+      },
+      {
+        "id": "SEL-08",
+        "control": "Tamaño en tiles.geojson = tamaño en el bucket",
+        "resultado": "OK",
+        "detalle": "8 celdas coinciden"
+      },
+      {
+        "id": "SEL-09",
+        "control": "Celdas S2 de Google que tocan PDET",
+        "resultado": "OK",
+        "detalle": "8 de 333 (3,110.1 MB de 178.3 GB)"
+      },
+      {
+        "id": "SEL-10",
+        "control": "Municipios PDET cubiertos por particiones de Google",
+        "resultado": "OK",
+        "detalle": "170/170"
+      }
+    ],
+    "buffer_deg": 0.01,
+    "catalogo": "config/buildings/particiones_pdet.csv",
+    "particiones": {
+      "google": 8,
+      "microsoft": 125
+    }
+  },
+  "descarga": {
+    "generado_utc": "2026-11-13T22:36:55+00:00",
+    "resumen": {
+      "OK": 14,
+      "AVISO": 0,
+      "FALLA": 0
+    },
+    "controles": [
+      {
+        "id": "DL-M1",
+        "control": "Archivos de microsoft disponibles",
+        "resultado": "OK",
+        "detalle": "125/125"
+      },
+      {
+        "id": "DL-M2",
+        "control": "Tamaño = Content-Length del servidor (microsoft)",
+        "resultado": "OK",
+        "detalle": "125/125 verificados"
+      },
+      {
+        "id": "DL-M3",
+        "control": "Tamaño = tamaño publicado en el índice (microsoft)",
+        "resultado": "OK",
+        "detalle": "125/125 verificados"
+      },
+      {
+        "id": "DL-M4",
+        "control": "MD5 = valor oficial de la fuente (microsoft)",
+        "resultado": "OK",
+        "detalle": "95/95 verificados"
+      },
+      {
+        "id": "DL-M5",
+        "control": "Integridad gzip (descompresión completa) (microsoft)",
+        "resultado": "OK",
+        "detalle": "125/125 verificados"
+      },
+      {
+        "id": "DL-M6",
+        "control": "Formato de la primera línea (microsoft)",
+        "resultado": "OK",
+        "detalle": "125/125 verificados"
+      },
+      {
+        "id": "DL-M7",
+        "control": "Registros en los archivos de microsoft",
+        "resultado": "OK",
+        "detalle": "4,595,615 registros en 373.4 MB"
+      },
+      {
+        "id": "DL-G1",
+        "control": "Archivos de google disponibles",
+        "resultado": "OK",
+        "detalle": "8/8"
+      },
+      {
+        "id": "DL-G2",
+        "control": "Tamaño = Content-Length del servidor (google)",
+        "resultado": "OK",
+        "detalle": "8/8 verificados"
+      },
+      {
+        "id": "DL-G3",
+        "control": "Tamaño = tamaño publicado en el índice (google)",
+        "resultado": "OK",
+        "detalle": "8/8 verificados"
+      },
+      {
+        "id": "DL-G4",
+        "control": "MD5 = valor oficial de la fuente (google)",
+        "resultado": "OK",
+        "detalle": "8/8 verificados"
+      },
+      {
+        "id": "DL-G5",
+        "control": "Integridad gzip (descompresión completa) (google)",
+        "resultado": "OK",
+        "detalle": "8/8 verificados"
+      },
+      {
+        "id": "DL-G6",
+        "control": "Formato de la primera línea (google)",
+        "resultado": "OK",
+        "detalle": "8/8 verificados"
+      },
+      {
+        "id": "DL-G7",
+        "control": "Registros en los archivos de google",
+        "resultado": "OK",
+        "detalle": "31,499,115 registros en 3,110.1 MB"
+      }
+    ],
+    "totales": {
+      "microsoft": {
+        "archivos": 125,
+        "bytes": 373371269,
+        "registros": 4595615
+      },
+      "google": {
+        "archivos": 8,
+        "bytes": 3110075800,
+        "registros": 31499115
+      }
+    }
+  }
+}
