@@ -53,6 +53,12 @@ python src/load_to_mongo.py                # Ingesta NoSQL idempotente e indexac
 python src/spatial_evidence.py             # Generación de evidencias con explain("executionStats")
 ```
 
+### Entrega 3: huellas de edificios
+```bash
+python src/00d_select_building_partitions.py  # Quadkeys (Microsoft) y celdas S2 (Google) que tocan PDET
+python src/00e_download_buildings.py          # Descarga en paralelo con verificación MD5, tamaño y gzip
+```
+
 ### Entregas futuras
 ```bash
 python src/02_load_buildings.py            # Entrega 3: Carga de huellas de edificios
@@ -82,5 +88,8 @@ Se documentan URL, fecha de descarga y checksum de cada fuente. Se respeta la at
 |---|---|---|---|
 | DANE, MGN2025 nivel municipio | [`MGN2025_MPIO_GRAFICO.zip`](https://geoportal.dane.gov.co/descargas/mgn_2025/MGN2025_MPIO_GRAFICO.zip) (71.6 MB) | 08/11/2026 | `a3c01393059be8f2947de5e0a828faa4c7a43119819a667a8124854340bc141f` |
 | ART, municipios PDET (Decreto 893 de 2017) | `config/pdet/MunicipiosPDET.xlsx` | versionado | ver `docs/calidad/qc_mgn_pdet.md` |
+| Microsoft Building Footprints (ODbL) | 125 quadkeys de Colombia que tocan PDET (373 MB) | 13/11/2026 | MD5 y SHA-256 por archivo en `docs/calidad/manifest_buildings.json` |
+| Google Open Buildings v3 (CC BY 4.0 y ODbL) | 8 celdas S2 de nivel 4 que tocan PDET (3.1 GB) | 13/11/2026 | MD5 y SHA-256 por archivo en `docs/calidad/manifest_buildings.json` |
 
-Detalle de la descarga y de los controles de calidad: `docs/calidad/qc_mgn_pdet.md` y `docs/adquisicion_mgn.md`.
+Detalle de la descarga y de los controles de calidad: `docs/calidad/qc_mgn_pdet.md` y `docs/adquisicion_mgn.md`
+(MGN y PDET), `docs/calidad/qc_buildings_acquisition.md` y `docs/adquisicion_edificios.md` (edificios).
