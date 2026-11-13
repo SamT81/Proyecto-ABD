@@ -57,6 +57,7 @@ python src/spatial_evidence.py             # Generación de evidencias con expla
 ```bash
 python src/00d_select_building_partitions.py  # Quadkeys (Microsoft) y celdas S2 (Google) que tocan PDET
 python src/00e_download_buildings.py          # Descarga en paralelo con verificación MD5, tamaño y gzip
+python src/01b_etl_buildings.py               # ETL: limpieza, municipio PDET, área y GeoParquet por partición
 ```
 
 ### Entregas futuras
@@ -93,3 +94,4 @@ Se documentan URL, fecha de descarga y checksum de cada fuente. Se respeta la at
 
 Detalle de la descarga y de los controles de calidad: `docs/calidad/qc_mgn_pdet.md` y `docs/adquisicion_mgn.md`
 (MGN y PDET), `docs/calidad/qc_buildings_acquisition.md` y `docs/adquisicion_edificios.md` (edificios).
+El ETL de edificios y su contrato de salida para la carga están en `docs/etl_edificios.md`.
