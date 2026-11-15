@@ -1,0 +1,23 @@
+# Parámetros del ETL de huellas de edificios (Entrega 3 - rama feat/buildings-etl)
+# La URI, base de datos, CRS y umbrales base se heredan de config/params.yaml.
+
+inputs:
+  municipalities_geojson: "data/processed/pdet_municipios.geojson"
+  raw_google_dir: "data/raw/buildings/google"
+  raw_microsoft_dir: "data/raw/buildings/microsoft"
+
+outputs:
+  processed_dir: "data/processed/buildings"
+  qc_report_json: "docs/calidad/qc_buildings_etl.json"
+  qc_report_md: "docs/calidad/qc_buildings_etl.md"
+  partition_by: "pdet_subregion"   # genera archivos NDJSON/Parquet manejables en RAM
+
+target:
+  collection: "buildings"
+  coord_decimals: 7                # ~1.1 cm en terreno, evita autointersecciones en 2dsphere
+
+quality_rules:
+  drop_invalid_geometries: true
+  drop_outside_pdet: true
+  keep_below_min_area_for_eda: true  # conserva edificios < 15 m2 marcados con flag para analizarlos en el EDA
+  max_reasonable_area_m2: 100000.0   # marca posibles artefactos satelitales > 10 ha
