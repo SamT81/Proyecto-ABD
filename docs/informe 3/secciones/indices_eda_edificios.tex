@@ -1,0 +1,37 @@
+% Sección del informe de la Entrega 3: índices espaciales y análisis exploratorio de los edificios.
+% Los \pend{...} se completan con docs/evidencia_edificios/ y docs/eda/ tras correr los scripts.
+\providecommand{\pend}[1]{\textcolor{red}{\textbf{[#1]}}}
+
+\section{Índices Espaciales y Análisis Exploratorio}
+
+\subsection{Índices y evidencia}
+Cada colección tiene tres índices (\texttt{src/02\_load\_buildings.py}): \texttt{geometry\_2dsphere} para \texttt{\$geoIntersects}, \texttt{\$geoWithin} y \texttt{\$near}; \texttt{(municipality\_code, area\_m2)} para la consulta de la Entrega~4 (techos de un municipio ordenados por área), y \texttt{source\_file}. \texttt{buildings\_google} añade \texttt{confidence}. \texttt{src/buildings\_evidence.py} comprueba los índices y la integridad y compara el plan de \texttt{explain("executionStats")} con y sin índice.
+
+\begin{table}[H]
+\centering
+\footnotesize
+\input{../evidencia_edificios/evidence_table.tex}
+\caption{Planes de ejecución con índice y con recorrido completo (\texttt{docs/evidencia\_edificios/}).}
+\label{tab:evidencia_edificios}
+\end{table}
+
+\pend{2--3 frases: qué etapas aparecen (IXSCAN/COLLSCAN), docs examinados con y sin índice, y el resultado de la validación cruzada código frente a \$geoWithin}
+
+\subsection{Análisis exploratorio}
+\texttt{src/buildings\_eda.py} calcula todo con agregaciones de MongoDB (sin traer los documentos a Python). El criterio de techo apto es parametrizable (\texttt{roof\_suitability} en \texttt{config/params.yaml}): área mínima de 15\,m$^2$ y, solo en Google, confianza mínima de 0.70.
+
+\IfFileExists{../eda/eda_resumen.tex}{\input{../eda/eda_resumen.tex}}{\pend{insertar docs/eda/eda\_resumen.tex}}
+
+\begin{figure}[H]
+\centering
+\IfFileExists{../eda/hist_area.png}{\includegraphics[width=0.85\linewidth]{../eda/hist_area.png}}{\pend{figura hist\_area.png}}
+\caption{Distribución del área de las huellas por fuente.}
+\end{figure}
+
+\begin{itemize}
+  \item \pend{hallazgo 1: diferencia de conteo y de área entre Microsoft y Google}
+  \item \textbf{Cobertura:} Google no tiene edificios en cinco municipios (Murindó, Vigía del Fuerte, Bojayá, Medio San Juan, Nóvita); deben tratarse como ausencia de datos.
+  \item \textbf{Área de Google:} \texttt{area\_in\_meters} queda en promedio 0.37\,\% por debajo del área en EPSG:9377 (ver ETL), diferencia que no cambia el criterio de techo apto.
+  \item \pend{hallazgo: distribución de confianza de Google y efecto del umbral 0.70}
+  \item \pend{hallazgo: municipios con más techos aptos y solapamiento entre fuentes (\texttt{--overlap})}
+\end{itemize}

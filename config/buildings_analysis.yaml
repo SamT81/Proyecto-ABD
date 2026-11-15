@@ -1,0 +1,8 @@
+# Parámetros de la evidencia de índices y del EDA de edificios (Entrega 3).
+evidence:
+  out_dir: "docs/evidencia_edificios"
+  collscan_max_ms: 300000    # límite del recorrido completo de comparación (puede tardar con millones de documentos)
+  overlap_sample: 500        # edificios de Google usados para medir solapamiento con Microsoft
+
+eda:
+  out_dir: "docs/eda"
