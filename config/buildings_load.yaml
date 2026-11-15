@@ -1,0 +1,22 @@
+# Parámetros de la carga de huellas de edificios a MongoDB (Entrega 3). La URI, la base y los
+# valores por defecto de lotes y procesos vienen de config/params.yaml (sección load).
+input:
+  # Salida del ETL (src/01b_etl_buildings.py): una carpeta por fuente y partición
+  processed_dir: "data/processed/buildings"
+
+collections:
+  microsoft: "buildings_microsoft"
+  google: "buildings_google"
+  ingestion_log: "ingestion_log"
+
+indexes:
+  compound: [["municipality_code", 1], ["area_m2", -1]]   # consulta de la Entrega 4: techos por municipio y área
+  google_confidence: true                                 # confidence solo existe en Google
+
+benchmark:
+  batch_sizes: [5000, 20000, 50000]
+  sample_docs: 100000          # documentos de una partición usados para comparar tamaños de lote
+
+output:
+  metrics_json: "docs/rendimiento/load_metrics.json"
+  metrics_md: "docs/rendimiento/load_metrics.md"

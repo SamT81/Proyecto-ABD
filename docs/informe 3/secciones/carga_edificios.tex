@@ -1,0 +1,64 @@
+% Sección del informe de la Entrega 3: carga masiva de huellas de edificios a MongoDB (eficiencia).
+% Los textos \pend{...} se reemplazan con los valores de docs/rendimiento/load_metrics.json tras la corrida real.
+\providecommand{\pend}[1]{\textcolor{red}{\textbf{[#1]}}}
+
+\section{Carga Masiva de las Huellas a MongoDB}
+
+\subsection{Técnicas de carga eficiente}
+\texttt{src/02\_load\_buildings.py} lee la salida GeoParquet del ETL y carga \texttt{buildings\_microsoft} (1\,761\,043 documentos esperados) y \texttt{buildings\_google} (2\,694\,782). Las decisiones que sostienen el rendimiento son:
+
+\begin{itemize}
+  \item \textbf{Lectura por \emph{row groups}.} \texttt{iter\_documents} entrega un lote por cada \emph{row group} de 50\,000 filas; ninguna partición se carga completa en memoria, de modo que el consumo no depende del tamaño de la fuente.
+  \item \textbf{\texttt{insert\_many} desordenado.} Cada lote se inserta con \texttt{ordered=False}: un documento rechazado no detiene a los demás y el servidor no necesita serializar las escrituras. Los errores de un lote se cuentan y se registran, no se ignoran.
+  \item \textbf{Paralelismo por partición.} Un proceso por partición (4 en \texttt{config/params.yaml}), cada uno con su propia conexión, porque el cuello de botella es la conversión a documentos en Python y no el servidor. Las particiones más grandes se reparten primero para no dejar un proceso trabajando solo al final.
+  \item \textbf{Índices después de la carga.} Los índices \texttt{2dsphere} y compuesto se crean al terminar: mantener un índice geoespacial durante la inserción de millones de documentos es mucho más lento que construirlo una vez sobre la colección completa.
+  \item \textbf{Reanudación e idempotencia.} Cada partición cargada queda en \texttt{ingestion\_log} con el SHA-256 de su archivo de entrada (el mismo del manifiesto de descarga). Una partición ya cargada se omite; una interrumpida se borra por \texttt{source\_file} y se vuelve a cargar, de modo que repetir la ejecución nunca duplica documentos.
+  \item \textbf{Verificación.} Tras cada partición se compara el conteo en MongoDB con las filas escritas por el ETL, y al final el total y los conteos por municipio.
+\end{itemize}
+
+\begin{lstlisting}[style=lab]
+python src/02_load_buildings.py --source all --dry-run --limit-partitions 2   # lee sin escribir
+python src/02_load_buildings.py --source all                                  # carga, indices y verificacion
+python src/02_load_buildings.py --benchmark google                            # compara tamanos de lote
+\end{lstlisting}
+
+\subsection{Resultados}
+\begin{table}[H]
+\centering
+\small
+\rowcolors{2}{gray!12}{white}
+\begin{tabularx}{\textwidth}{X r r}
+\toprule
+ & \textbf{Microsoft} & \textbf{Google} \\
+\midrule
+Particiones & 125 & 8 \\
+Documentos cargados & \pend{insertados} & \pend{insertados} \\
+Tiempo de carga (s) & \pend{s} & \pend{s} \\
+Documentos por segundo & \pend{docs/s} & \pend{docs/s} \\
+Tiempo de índices (s) & \pend{s} & \pend{s} \\
+Verificación (total y por municipio) & \pend{OK/FALLA} & \pend{OK/FALLA} \\
+\bottomrule
+\end{tabularx}
+\caption{Resultado de la carga con \pend{N} procesos y lotes de \pend{N} documentos (\texttt{docs/rendimiento/load\_metrics.json}).}
+\label{tab:carga_edificios}
+\end{table}
+
+\subsection{Efecto del tamaño de lote}
+\begin{table}[H]
+\centering
+\small
+\rowcolors{2}{gray!12}{white}
+\begin{tabular}{r r r}
+\toprule
+\textbf{Lote (documentos)} & \textbf{Segundos} & \textbf{Docs/s} \\
+\midrule
+5\,000 & \pend{s} & \pend{docs/s} \\
+20\,000 & \pend{s} & \pend{docs/s} \\
+50\,000 & \pend{s} & \pend{docs/s} \\
+\bottomrule
+\end{tabular}
+\caption{Comparación de tamaños de lote sobre una muestra de \pend{N} documentos (\texttt{--benchmark}).}
+\label{tab:benchmark_lote}
+\end{table}
+
+\pend{una o dos frases: qué tamaño de lote se eligió y por qué, y qué parte del tiempo fue índice frente a inserción}
