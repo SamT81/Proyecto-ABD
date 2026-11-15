@@ -1,0 +1,260 @@
+{
+  "generated_at": "2026-11-15T22:05:06+00:00",
+  "mongo_version": "7.0.48",
+  "database": "upme_solar",
+  "collections": [
+    {
+      "collection": "buildings_microsoft",
+      "checks": [
+        {
+          "check": "colección con documentos",
+          "ok": true,
+          "detail": "1,761,043 documentos"
+        },
+        {
+          "check": "índice 2dsphere en geometry",
+          "ok": true,
+          "detail": "{\"_id_\": {\"_id\": 1}, \"geometry_2dsphere\": {\"geometry\": \"2dsphere\"}, \"municipality_area\": {\"municipality_code\": 1, \"area_m2\": -1}, \"source_file_1\": {\"source_file\": 1}}"
+        },
+        {
+          "check": "índice compuesto municipality_code+area_m2",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "check": "todas las geometrías son Polygon",
+          "ok": true,
+          "detail": "0 con otro tipo"
+        },
+        {
+          "check": "todos los edificios tienen municipality_code",
+          "ok": true,
+          "detail": "0 sin código"
+        },
+        {
+          "check": "códigos de municipio válidos (subconjunto de los 170 PDET)",
+          "ok": true,
+          "detail": "170 municipios con edificios; 0 códigos desconocidos"
+        },
+        {
+          "check": "punto_en_edificio: usa índice espacial",
+          "ok": true,
+          "detail": "etapas=['FETCH', 'IXSCAN'] claves=17 docs=5 devueltos=1"
+        },
+        {
+          "check": "cercanos_near: usa índice espacial",
+          "ok": true,
+          "detail": "etapas=['GEO_NEAR_2DSPHERE', 'FETCH', 'IXSCAN', 'FETCH', 'IXSCAN'] claves=1244 docs=1191 devueltos=462"
+        },
+        {
+          "check": "asignación previa vs $geoWithin",
+          "ok": true,
+          "detail": "SIPÍ (27745): 653 por código, 651 por $geoWithin (99.7 %); la diferencia son edificios que cruzan el límite"
+        }
+      ],
+      "queries": [
+        {
+          "query": "punto_en_edificio",
+          "description": "$geoIntersects con un vértice del edificio de muestra: debe devolverlo",
+          "plan_index": {
+            "stages": [
+              "FETCH",
+              "IXSCAN"
+            ],
+            "index_used": "geometry_2dsphere",
+            "uses_index": true,
+            "collscan": false,
+            "keys_examined": 17,
+            "docs_examined": 5,
+            "n_returned": 1,
+            "millis": 2
+          },
+          "expected_ok": true,
+          "plan_collscan": {
+            "stages": [
+              "COLLSCAN"
+            ],
+            "index_used": null,
+            "uses_index": false,
+            "collscan": true,
+            "keys_examined": 0,
+            "docs_examined": 1761043,
+            "n_returned": 1,
+            "millis": 7336
+          }
+        },
+        {
+          "query": "cercanos_near",
+          "description": "$near: edificios a menos de 500 m de un punto",
+          "plan_index": {
+            "stages": [
+              "GEO_NEAR_2DSPHERE",
+              "FETCH",
+              "IXSCAN",
+              "FETCH",
+              "IXSCAN"
+            ],
+            "index_used": "geometry_2dsphere",
+            "uses_index": true,
+            "collscan": false,
+            "keys_examined": 1244,
+            "docs_examined": 1191,
+            "n_returned": 462,
+            "millis": 10
+          }
+        }
+      ],
+      "documents": 1761043,
+      "indexes": {
+        "_id_": {
+          "_id": 1
+        },
+        "geometry_2dsphere": {
+          "geometry": "2dsphere"
+        },
+        "municipality_area": {
+          "municipality_code": 1,
+          "area_m2": -1
+        },
+        "source_file_1": {
+          "source_file": 1
+        }
+      },
+      "cross_check": {
+        "municipality": "27745",
+        "name": "SIPÍ",
+        "by_code": 653,
+        "by_geoWithin": 651,
+        "pct": 99.69
+      }
+    },
+    {
+      "collection": "buildings_google",
+      "checks": [
+        {
+          "check": "colección con documentos",
+          "ok": true,
+          "detail": "2,694,782 documentos"
+        },
+        {
+          "check": "índice 2dsphere en geometry",
+          "ok": true,
+          "detail": "{\"_id_\": {\"_id\": 1}, \"geometry_2dsphere\": {\"geometry\": \"2dsphere\"}, \"municipality_area\": {\"municipality_code\": 1, \"area_m2\": -1}, \"source_file_1\": {\"source_file\": 1}, \"confidence_1\": {\"confidence\": 1}}"
+        },
+        {
+          "check": "índice compuesto municipality_code+area_m2",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "check": "todas las geometrías son Polygon",
+          "ok": true,
+          "detail": "0 con otro tipo"
+        },
+        {
+          "check": "todos los edificios tienen municipality_code",
+          "ok": true,
+          "detail": "0 sin código"
+        },
+        {
+          "check": "códigos de municipio válidos (subconjunto de los 170 PDET)",
+          "ok": true,
+          "detail": "165 municipios con edificios; 0 códigos desconocidos"
+        },
+        {
+          "check": "punto_en_edificio: usa índice espacial",
+          "ok": true,
+          "detail": "etapas=['FETCH', 'IXSCAN'] claves=22 docs=8 devueltos=1"
+        },
+        {
+          "check": "cercanos_near: usa índice espacial",
+          "ok": true,
+          "detail": "etapas=['GEO_NEAR_2DSPHERE', 'FETCH', 'IXSCAN', 'FETCH', 'IXSCAN'] claves=870 docs=813 devueltos=270"
+        },
+        {
+          "check": "asignación previa vs $geoWithin",
+          "ok": true,
+          "detail": "SIPÍ (27745): 1 por código, 1 por $geoWithin (100.0 %); la diferencia son edificios que cruzan el límite"
+        }
+      ],
+      "queries": [
+        {
+          "query": "punto_en_edificio",
+          "description": "$geoIntersects con un vértice del edificio de muestra: debe devolverlo",
+          "plan_index": {
+            "stages": [
+              "FETCH",
+              "IXSCAN"
+            ],
+            "index_used": "geometry_2dsphere",
+            "uses_index": true,
+            "collscan": false,
+            "keys_examined": 22,
+            "docs_examined": 8,
+            "n_returned": 1,
+            "millis": 2
+          },
+          "expected_ok": true,
+          "plan_collscan": {
+            "stages": [
+              "COLLSCAN"
+            ],
+            "index_used": null,
+            "uses_index": false,
+            "collscan": true,
+            "keys_examined": 0,
+            "docs_examined": 2694782,
+            "n_returned": 1,
+            "millis": 12464
+          }
+        },
+        {
+          "query": "cercanos_near",
+          "description": "$near: edificios a menos de 500 m de un punto",
+          "plan_index": {
+            "stages": [
+              "GEO_NEAR_2DSPHERE",
+              "FETCH",
+              "IXSCAN",
+              "FETCH",
+              "IXSCAN"
+            ],
+            "index_used": "geometry_2dsphere",
+            "uses_index": true,
+            "collscan": false,
+            "keys_examined": 870,
+            "docs_examined": 813,
+            "n_returned": 270,
+            "millis": 14
+          }
+        }
+      ],
+      "documents": 2694782,
+      "indexes": {
+        "_id_": {
+          "_id": 1
+        },
+        "geometry_2dsphere": {
+          "geometry": "2dsphere"
+        },
+        "municipality_area": {
+          "municipality_code": 1,
+          "area_m2": -1
+        },
+        "source_file_1": {
+          "source_file": 1
+        },
+        "confidence_1": {
+          "confidence": 1
+        }
+      },
+      "cross_check": {
+        "municipality": "27745",
+        "name": "SIPÍ",
+        "by_code": 1,
+        "by_geoWithin": 1,
+        "pct": 100.0
+      }
+    }
+  ]
+}
