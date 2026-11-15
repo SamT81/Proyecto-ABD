@@ -32,14 +32,14 @@ python src/02_load_buildings.py --benchmark google                            # 
  & \textbf{Microsoft} & \textbf{Google} \\
 \midrule
 Particiones & 125 & 8 \\
-Documentos cargados & \pend{insertados} & \pend{insertados} \\
-Tiempo de carga (s) & \pend{s} & \pend{s} \\
-Documentos por segundo & \pend{docs/s} & \pend{docs/s} \\
-Tiempo de índices (s) & \pend{s} & \pend{s} \\
-Verificación (total y por municipio) & \pend{OK/FALLA} & \pend{OK/FALLA} \\
+Documentos cargados & 1\,761\,043 & 2\,694\,782 \\
+Tiempo de carga (s) & 82.1 & 38.7 \\
+Documentos por segundo & 21\,458 & 69\,604 \\
+Tiempo de índices (s) & 34.5 & 60.9 \\
+Verificación (total y por municipio) & OK & OK \\
 \bottomrule
 \end{tabularx}
-\caption{Resultado de la carga con \pend{N} procesos y lotes de \pend{N} documentos (\texttt{docs/rendimiento/load\_metrics.json}).}
+\caption{Resultado de la carga con 4 procesos y lotes de 20\,000 documentos (\texttt{docs/rendimiento/load\_metrics.json}).}
 \label{tab:carga_edificios}
 \end{table}
 
@@ -52,13 +52,13 @@ Verificación (total y por municipio) & \pend{OK/FALLA} & \pend{OK/FALLA} \\
 \toprule
 \textbf{Lote (documentos)} & \textbf{Segundos} & \textbf{Docs/s} \\
 \midrule
-5\,000 & \pend{s} & \pend{docs/s} \\
-20\,000 & \pend{s} & \pend{docs/s} \\
-50\,000 & \pend{s} & \pend{docs/s} \\
+5\,000 & 1.00 & 100\,051 \\
+20\,000 & 0.76 & 131\,246 \\
+50\,000 & 0.77 & 130\,513 \\
 \bottomrule
 \end{tabular}
-\caption{Comparación de tamaños de lote sobre una muestra de \pend{N} documentos (\texttt{--benchmark}).}
+\caption{Comparación de tamaños de lote sobre una muestra de 100\,000 documentos de la partición \texttt{8e9} de Google (\texttt{--benchmark}).}
 \label{tab:benchmark_lote}
 \end{table}
 
-\pend{una o dos frases: qué tamaño de lote se eligió y por qué, y qué parte del tiempo fue índice frente a inserción}
+Se eligió un lote de 20\,000 documentos: es 31\,\% más rápido que 5\,000 y no mejora con 50\,000, que además usa más memoria por proceso. Los índices, creados después de la carga, tomaron el 30\,\% del tiempo total en Microsoft (34.5 de 116.6~s) y el 61\,\% en Google (60.9 de 99.6~s), y \texttt{geometry\_2dsphere} fue el más costoso de cada colección (23.6 y 35.7~s). Microsoft cargó más lento por documento (21\,458 frente a 69\,604 docs/s) porque se reparte en 125 particiones pequeñas, 7 de ellas vacías, frente a 8 grandes en Google, de modo que el costo fijo por partición pesa más. Ninguna partición tuvo documentos rechazados y los conteos totales y por municipio coinciden con el ETL (170 municipios en Microsoft y 165 en Google).
