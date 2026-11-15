@@ -10,7 +10,7 @@ Cada colección tiene tres índices (\texttt{src/02\_load\_buildings.py}): \text
 \begin{table}[H]
 \centering
 \footnotesize
-\input{../evidencia_edificios/evidence_table.tex}
+\IfFileExists{../evidencia_edificios/evidence_table.tex}{\input{../evidencia_edificios/evidence_table.tex}}{\pend{generar la tabla con buildings\_evidence.py}}
 \caption{Planes de ejecución con índice y con recorrido completo (\texttt{docs/evidencia\_edificios/}).}
 \label{tab:evidencia_edificios}
 \end{table}
@@ -29,7 +29,7 @@ Cada colección tiene tres índices (\texttt{src/02\_load\_buildings.py}): \text
 \end{figure}
 
 \begin{itemize}
-  \item \pend{hallazgo 1: diferencia de conteo y de área entre Microsoft y Google}
+  \item \textbf{Conteos del ETL:} Microsoft registró 1.761.043 huellas en 170 municipios PDET y Google registró 2.694.782 en 165. Google aportó 933.739 huellas más (53,0\,\% respecto de Microsoft). \pend{comparar el área de las huellas entre fuentes con el resumen del EDA}
   \item \textbf{Cobertura:} Google no tiene edificios en cinco municipios (Murindó, Vigía del Fuerte, Bojayá, Medio San Juan, Nóvita); deben tratarse como ausencia de datos.
   \item \textbf{Área de Google:} \texttt{area\_in\_meters} queda en promedio 0.37\,\% por debajo del área en EPSG:9377 (ver ETL), diferencia que no cambia el criterio de techo apto.
   \item \pend{hallazgo: distribución de confianza de Google y efecto del umbral 0.70}

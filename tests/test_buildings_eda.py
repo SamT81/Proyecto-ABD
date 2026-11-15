@@ -36,7 +36,7 @@ def test_eda_tables_and_figures(tmp_path):
                                "google": {"n": 130, "mean": 91.0, "median": 60.0, "p99": 500.0, "total": 12000.0}},
                               {"microsoft": {"n_apt": 130, "area_apt_m2": 13000.0}, "google": {"n_apt": 85, "area_apt_m2": 8500.0}})
     eda.write_summary(tmp_path, table, {"sample": 10, "with_microsoft_overlap": 8, "pct": 80.0})
-    assert "Solapamiento" in (tmp_path / "eda_resumen.md").read_text() and (tmp_path / "eda_resumen.tex").exists()
+    assert "Solapamiento" in (tmp_path / "eda_resumen.md").read_text(encoding="utf-8") and (tmp_path / "eda_resumen.tex").exists()
 
 
 def test_evidence_outputs(tmp_path):
@@ -47,5 +47,5 @@ def test_evidence_outputs(tmp_path):
         "collection": "buildings_google", "documents": 10, "checks": [{"check": "c", "ok": True, "detail": "d"}],
         "queries": [{"query": "q_1", "plan_index": plan, "plan_collscan": dict(plan, stages=["COLLSCAN"], docs_examined=10)}]}]}
     ev.write_outputs(res, tmp_path)
-    assert "IXSCAN" in (tmp_path / "evidence.md").read_text()
-    assert "q\\_1" in (tmp_path / "evidence_table.tex").read_text()
+    assert "IXSCAN" in (tmp_path / "evidence.md").read_text(encoding="utf-8")
+    assert "q\\_1" in (tmp_path / "evidence_table.tex").read_text(encoding="utf-8")
