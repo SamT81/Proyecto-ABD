@@ -1,0 +1,10 @@
+\begin{tabular}{p{0.2\linewidth}p{0.2\linewidth}p{0.17\linewidth}rrr}
+\toprule
+Colección & Consulta & Plan & Docs (índice) & Docs (sin índice) & ms \\
+\midrule
+\texttt{buildings\_microsoft} & \texttt{punto\_en\_edificio} & FETCH/IXSCAN & 5 & 1761043 & 2 \\
+\texttt{buildings\_microsoft} & \texttt{cercanos\_near} & GEO\_NEAR\_2DSPHERE/FETCH/IXSCAN/FETCH/IXSCAN & 1191 & -- & 10 \\
+\texttt{buildings\_google} & \texttt{punto\_en\_edificio} & FETCH/IXSCAN & 8 & 2694782 & 2 \\
+\texttt{buildings\_google} & \texttt{cercanos\_near} & GEO\_NEAR\_2DSPHERE/FETCH/IXSCAN/FETCH/IXSCAN & 813 & -- & 14 \\
+\bottomrule
+\end{tabular}
