@@ -13,8 +13,8 @@ Estima el número de edificaciones y el área de techos aptos para paneles solar
 |---|---|---|
 | 1 | Esquema NoSQL y plan de implementación | Completada (`docs/Project_Phase1_Report.pdf`) |
 | 2 | Fronteras PDET (DANE MGN 2025) e integración espacial NoSQL | Completada (`docs/informe 2/Project_Phase2_Report.pdf`) |
-| 3 | Carga de huellas de edificios + EDA | Pendiente |
-| 4 | Análisis, mapas e informe final | Pendiente |
+| 3 | Carga de huellas de edificios + EDA | Completada (`docs/informe 3/`) |
+| 4 | Resultados, comparación de fuentes, mapas e informe final | Completada (`docs/informe 4/Project_Phase4_Report.pdf`) |
 
 ## Estructura del repositorio
 
@@ -22,10 +22,18 @@ Estima el número de edificaciones y el área de techos aptos para paneles solar
 docs/
 ├── informe 2/  Project_Phase2_Report.pdf y fuente LaTeX (Entrega 2)
 ├── calidad/    Bitácora QA/QC (qc_mgn_pdet.md, manifest_mgn.json, etl_integrity_report.json)
-├── evidencia/  Pruebas de índices 2dsphere y planes de ejecución explain()
+├── evidencia/  Pruebas de índices 2dsphere y planes de ejecución explain() (Entrega 2)
+├── evidencia_edificios/  Evidencia de índices de las colecciones de edificios (Entrega 3)
+├── eda/        EDA de las huellas (tablas y figuras)
+├── rendimiento/  Métricas de la carga a MongoDB
+├── resultados/ Colección results exportada (results.csv) y sensibilidad
+├── comparacion/  Comparación Microsoft vs Google
+├── mapas/      Mapas coropléticos y gráficos
+├── informe 3/  Informe de la Entrega 3
+├── informe 4/  Informe final (Entrega 4)
 ├── recursos/   Recursos gráficos (logo_javeriana.png)
 └── latex/      Fuente LaTeX y diagrama E-R (Entrega 1)
-config/         Parámetros declarativos (acquisition.yaml, params.yaml, spatial.yaml)
+config/         Parámetros declarativos (params.yaml, spatial.yaml, buildings*.yaml, results.yaml, comparison.yaml, maps.yaml)
 src/            Scripts numerados del pipeline e infraestructura de validación
 └── utils/      Módulo geo_integrity.py (reparación topológica y proyecciones)
 data/           Datos descargados e intermedios (ignorado por git)
@@ -60,11 +68,32 @@ python src/00e_download_buildings.py          # Descarga en paralelo con verific
 python src/01b_etl_buildings.py               # ETL: limpieza, municipio PDET, área y GeoParquet por partición
 ```
 
-### Entregas futuras
 ```bash
-python src/02_load_buildings.py            # Entrega 3: Carga de huellas de edificios
-python src/03_compute_results.py           # Entrega 4: Cálculo de potencial solar
-python src/04_make_maps.py                 # Entrega 4: Generación de cartografía final
+python src/02_load_buildings.py               # Carga a MongoDB por partición (paralela, reanudable), índices y verificación
+python src/02_load_buildings.py --benchmark google   # Efecto del tamaño de lote (opcional)
+python src/buildings_evidence.py              # Evidencia de índices con explain() y validación cruzada
+python src/buildings_eda.py --overlap         # EDA de las huellas de edificios
+```
+
+### Entrega 4: resultados, comparación y mapas
+```bash
+python src/03_build_results.py                # Colección results ($merge), sensibilidad y docs/resultados/results.csv
+python src/04_compare_sources.py              # Comparación Microsoft vs Google (docs/comparacion/)
+python src/05_make_maps.py                    # Mapas y gráficos (docs/mapas/); requiere data/processed/pdet_municipios.geojson
+```
+
+### Reproducir todo desde cero
+```bash
+pip install -r requirements.txt -r requirements-analysis.txt -r requirements-eda.txt
+docker compose up -d                          # MongoDB 7 (Docker con al menos 6 GB de memoria)
+python src/00a_download_mgn.py && python src/00b_build_pdet_catalog.py && python src/00c_filter_pdet.py
+python src/01_load_municipalities.py && python src/load_to_mongo.py
+python src/00d_select_building_partitions.py && python src/00e_download_buildings.py
+python src/01b_etl_buildings.py
+python src/02_load_buildings.py
+python src/buildings_evidence.py && python src/buildings_eda.py --overlap
+python src/03_build_results.py && python src/04_compare_sources.py && python src/05_make_maps.py
+python -m pytest tests -q
 ```
 
 ## Compilación de informes
@@ -79,6 +108,15 @@ pdflatex main.tex && pdflatex main.tex
 ```bash
 cd "docs/informe 2"
 pdflatex Project_Phase2_Report.tex && pdflatex Project_Phase2_Report.tex
+```
+
+### Entrega 3
+Las secciones individuales están versionadas en `docs/informe 3/secciones/` (`adquisicion_edificios.tex`, `etl_edificios.tex`, `carga_edificios.tex` e `indices_eda_edificios.tex`).
+
+### Entrega 4
+```bash
+cd "docs/informe 4"
+pdflatex Project_Phase4_Report.tex && pdflatex Project_Phase4_Report.tex
 ```
 
 ## Fuentes y licencias
