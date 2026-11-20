@@ -1,0 +1,131 @@
+\documentclass[12pt, letterpaper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish, es-tabla]{babel}
+\usepackage{geometry}
+\geometry{top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm}
+\usepackage{lmodern}
+\usepackage{graphicx}
+\graphicspath{{../recursos/}{recursos/}{../mapas/}{mapas/}{./}}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage[table]{xcolor}
+\usepackage{hyperref}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{listings}
+\usepackage[most]{tcolorbox}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta}
+\setlength{\fboxsep}{0pt}
+\setlength{\fboxrule}{0.6pt}
+
+\definecolor{codebg}{gray}{0.96}
+\definecolor{codecomment}{HTML}{2F5D8C}
+\definecolor{codestring}{HTML}{C00000}
+\definecolor{codekeyword}{HTML}{007F00}
+\lstdefinestyle{lab}{
+  basicstyle=\fontsize{9}{11}\selectfont\ttfamily, backgroundcolor=\color{codebg},
+  numbers=left, numberstyle=\fontsize{7}{8}\selectfont\color{gray}, numbersep=7pt,
+  commentstyle=\itshape\color{codecomment}, keywordstyle=\color{codekeyword}, stringstyle=\color{codestring},
+  showstringspaces=false, breaklines=true, keepspaces=true, frame=single, framerule=0pt,
+  rulecolor=\color{codebg}, framesep=5pt, xleftmargin=14pt, aboveskip=8pt, belowskip=8pt, extendedchars=true,
+  literate={á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1 {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1
+           {Ó}{{\'O}}1 {Ú}{{\'U}}1 {ñ}{{\~n}}1 {Ñ}{{\~N}}1 {ü}{{\"u}}1 {¿}{{?`}}1 {¡}{{!`}}1}
+\newcolumntype{Y}[1]{>{\raggedright\arraybackslash}p{\dimexpr #1\linewidth-2\tabcolsep\relax}}
+
+% Texto rojo = pendiente de completar con los resultados reales (no debe quedar ninguno en el PDF final).
+\providecommand{\pend}[1]{\textcolor{red}{\textbf{[#1]}}}
+% Incluye una tabla generada por los scripts (docs/...); busca en la carpeta del repo y en la del proyecto de Overleaf.
+\newcommand{\tryinput}[1]{\IfFileExists{../#1}{\input{../#1}}{\IfFileExists{#1}{\input{#1}}{\pend{falta \detokenize{#1}}}}}
+% Incluye una figura de docs/mapas (en el repo: ../mapas/; en Overleaf: mapas/).
+\newcommand{\figbody}[3]{\begin{figure}[H]\centering\includegraphics[width=#2\linewidth]{#1}\caption{#3}\end{figure}}
+\newcommand{\tryfigure}[3]{\IfFileExists{../mapas/#1}{\figbody{../mapas/#1}{#2}{#3}}{\IfFileExists{mapas/#1}{\figbody{mapas/#1}{#2}{#3}}{\pend{falta la figura \detokenize{#1}}}}}
+
+\hypersetup{colorlinks=true, linkcolor=blue!70!black, citecolor=blue!70!black, urlcolor=blue!70!black,
+  pdftitle={Proyecto Final - Entrega 4: Análisis, mapas e informe final},
+  pdfauthor={Samuel Tovar, Juan Romero, Carlos Pinzón Caicedo, Alejandro Padilla Gaviria}}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    \vspace*{0.5cm}
+    {\huge \textbf{Administración de Bases de Datos}}\\[0.4cm]
+    {\Large \textbf{Proyecto Final: Potencial Solar de Techos en Municipios PDET}}\\[1.2cm]
+    \begin{figure}[H]\centering\includegraphics[width=0.5\linewidth]{logo_javeriana.png}\end{figure}
+    {\large \textbf{Estudiantes:}}\\[0.2cm]
+    {\large Samuel Tovar}\\[0.1cm]
+    {\large Juan Romero}\\[0.1cm]
+    {\large Carlos Pinzón Caicedo}\\[0.1cm]
+    {\large Alejandro Padilla Gaviria}\\[0.8cm]
+    {\large \textbf{Entrega 4 (informe final):}}\\[0.2cm]
+    {\large Análisis del Potencial Solar, Comparación de Fuentes y Cartografía}\\[1.2cm]
+    \vfill
+    {\Large \textbf{Pontificia Universidad Javeriana}}\\[0.6cm]
+    {\large 23 de noviembre de 2026}
+\end{titlepage}
+
+\clearpage
+\tableofcontents
+\vspace{0.8cm}
+\listoffigures
+\vspace{0.8cm}
+\listoftables
+\clearpage
+
+\section{Introducción}
+El proyecto estima el número de edificaciones y el área de techos aptos para paneles solares en los 170 municipios con Programas de Desarrollo con Enfoque Territorial (PDET), con MongoDB y dos conjuntos abiertos de huellas de edificios: Microsoft Global ML Building Footprints y Google Open Buildings v3. Esta entrega final calcula las métricas por municipio y fuente, evalúa su sensibilidad al criterio de techo apto, compara las dos fuentes, presenta los resultados en mapas y discute sus alcances y límites. El Cuadro~\ref{tab:entregas} resume el recorrido y el Cuadro~\ref{tab:criterios4} relaciona esta entrega con las secciones y los archivos del repositorio (\url{https://github.com/SamT81/Proyecto-ABD}).
+
+\begin{table}[H]
+\centering
+\small
+\rowcolors{2}{gray!12}{white}
+\begin{tabularx}{\textwidth}{l X}
+\toprule
+\textbf{Entrega} & \textbf{Producto} \\
+\midrule
+1 & Esquema NoSQL (cinco colecciones), diccionario de datos y plan del proyecto. \\
+2 & 170 municipios PDET del MGN2025 en \texttt{municipalities}, con índice \texttt{2dsphere} y evidencia con \texttt{explain()}. \\
+3 & 133 archivos de edificios descargados y verificados, ETL a GeoParquet, carga a \texttt{buildings\_microsoft} (1\,761\,043 documentos) y \texttt{buildings\_google} (2\,694\,782), índices y EDA. \\
+4 & Colección \texttt{results}, sensibilidad, comparación entre fuentes, mapas, discusión y recomendaciones (este informe). \\
+\bottomrule
+\end{tabularx}
+\caption{Entregas del proyecto.}
+\label{tab:entregas}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\rowcolors{2}{gray!12}{white}
+\begin{tabularx}{\textwidth}{Y{0.28} Y{0.10} Y{0.37} Y{0.25}}
+\toprule
+\textbf{Componente} & \textbf{Sección} & \textbf{Archivos principales} & \textbf{Rama} \\
+\midrule
+Colección \texttt{results} y sensibilidad & 3 y 4 & \texttt{03\_build\_results.py}, \texttt{docs/resultados/} & \texttt{feat/results} \\
+Comparación entre fuentes & 5 & \texttt{04\_compare\_sources.py}, \texttt{docs/comparacion/} & \texttt{feat/comparison} \\
+Mapas y gráficos & 6 & \texttt{05\_make\_maps.py}, \texttt{docs/mapas/} & \texttt{feat/maps} \\
+Discusión, conclusiones y reproducibilidad & 7 a 9 & \texttt{README.md}, este informe & \texttt{feat/final-report} \\
+\bottomrule
+\end{tabularx}
+\caption{Componentes de la Entrega 4.}
+\label{tab:criterios4}
+\end{table}
+
+\section{Datos y Método en Breve}
+Los límites provienen de la capa municipal del Marco Geoestadístico Nacional 2025 del DANE, filtrada a los 170 municipios PDET. De Microsoft se descargaron 125 quadkeys (373.4~MB) y de Google 8 celdas S2 (3.1~GB), solo las particiones que intersectan los municipios PDET: de 4\,595\,615 y 31\,499\,115 registros leídos, el ETL conservó 1\,761\,043 y 2\,694\,782 dentro de PDET. Cada edificio se asignó a un solo municipio con su punto representativo, se reparó si era inválido (28 en Microsoft) y se midió en EPSG:9377. La carga a MongoDB tomó 82~s y 39~s con 4 procesos, con los índices creados después, y los conteos coinciden con los del ETL. Los detalles están en los informes de las entregas 2 y 3.
+
+\paragraph{Criterio de techo apto.} Una huella es un techo apto si su área es de al menos 15\,m$^2$ y, solo en Google, su confianza es de al menos 0.70. Los umbrales son parámetros (\texttt{config/params.yaml}) y cada resultado guarda los que se usaron. Es un supuesto metodológico: la huella mide la proyección del edificio y no la superficie realmente instalable (ver Sección~\ref{sec:discusion}).
+
+\newcommand{\trysection}[1]{\IfFileExists{secciones/#1.tex}{\input{secciones/#1}}{\pend{falta secciones/#1.tex}}}
+\trysection{resultados}
+\trysection{sensibilidad}
+\trysection{comparacion}
+\trysection{mapas}
+\trysection{discusion}
+\trysection{conclusiones}
+
+\section*{Atribución de los datos}
+Microsoft Global ML Building Footprints, licencia ODbL v1.0. Google Open Buildings v3, licencia CC BY 4.0 y ODbL v1.0. Límites municipales: DANE, Marco Geoestadístico Nacional 2025. Municipios PDET: Agencia de Renovación del Territorio (Decreto 893 de 2017).
+
+\end{document}
