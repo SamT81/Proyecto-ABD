@@ -1,0 +1,27 @@
+% Sección 7 (Alejandro): discusión y recomendaciones. Se escribe con los resultados finales de las secciones 3 a 6.
+\section{Discusión y Recomendaciones}\label{sec:discusion}
+
+\subsection{Qué dicen los resultados}
+\begin{itemize}
+  \item \textbf{Magnitud.} Con el criterio base, el área de techos aptos es de 221.07~km$^2$ en Microsoft y 206.28~km$^2$ en Google, repartida en 1\,756\,529 y 2\,161\,261 techos. \pend{municipios y subregiones que concentran el potencial según los mapas de la Sección~6}.
+  \item \textbf{Las fuentes coinciden en lo grande y difieren en el detalle.} \pend{correlación y concordancia del ranking de la Sección~5}. Google detecta más edificios (razón mediana \pend{1.4}) pero más pequeños, de modo que el área total es similar y el área apta de Google es menor (6.7\,\%).
+  \item \textbf{La elección del umbral importa más en Google.} \pend{resultado de la sensibilidad de la Sección~4: cuánto baja el área apta al pasar de confianza 0.60 a 0.80}.
+\end{itemize}
+
+\subsection{Limitaciones}
+\begin{itemize}
+  \item \textbf{La huella no es el área instalable.} No se consideran la inclinación, la orientación, el sombreado, los obstáculos ni la resistencia estructural del techo. El área apta es un tope superior del potencial, no una capacidad instalable.
+  \item \textbf{Las fuentes no se suman.} Se solapan (71.2\,\% de una muestra de edificios de Google intersecta uno de Microsoft); sumar ambas contaría dos veces los mismos techos.
+  \item \textbf{Cobertura desigual.} Google no tiene edificios en Murindó, Vigía del Fuerte, Bojayá, Medio San Juan y Nóvita; en esos municipios solo hay estimación de Microsoft.
+  \item \textbf{Fechas de captura distintas} entre fuentes y entre regiones; no se evalúa la precisión de las huellas contra una referencia en campo.
+  \item \textbf{Sesgo de área de Google:} \texttt{area\_in\_meters} queda en promedio 0.37\,\% por debajo del área en EPSG:9377.
+  \item \textbf{El criterio de techo apto es un supuesto} (15\,m$^2$ y confianza 0.70); por eso se reporta la sensibilidad.
+\end{itemize}
+
+\subsection{Recomendaciones}
+\begin{enumerate}
+  \item Tomar Microsoft Building Footprints como línea base territorial por su cobertura completa en los 170 municipios PDET (221.07~km$^2$ de área apta) y emplear Google Open Buildings v3 con umbral de confianza $\geq 0.70$ (206.28~km$^2$) como escenario conservador de alta precisión.
+  \item Reportar el potencial como un rango entre escenarios y no como una cifra única.
+  \item Complementar el resultado con un análisis de orientación, inclinación y sombreado, y con verificación en campo, en los municipios priorizados.
+  \item Priorizar la estructuración de proyectos en los municipios líderes del ranking por área apta (Secciones~3 y~6) y programar verificación en campo o con ortofotos en aquellos con mayor discrepancia relativa entre fuentes (Sección~5), incluidos los cinco municipios del Atrato y San Juan sin cobertura en Google.
+\end{enumerate}

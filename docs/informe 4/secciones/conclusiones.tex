@@ -1,0 +1,9 @@
+% Sección 8 (Alejandro): conclusiones y trabajo futuro.
+\section{Conclusiones y Trabajo Futuro}
+\begin{itemize}
+  \item Se construyó una canalización reproducible, desde la descarga verificada hasta mapas, que calcula el potencial de techos por municipio PDET con MongoDB (\texttt{2dsphere}, agregaciones y \texttt{\$merge}), con controles de calidad en cada etapa.
+  \item Con el criterio base ($\text{área} \geq 15\text{~m}^2$ y $\text{confianza} \geq 0.70$ en Google), el potencial bruto de techos aptos en los municipios PDET alcanza 221.07~km$^2$ en Microsoft (1\,756\,529 edificaciones) y 206.28~km$^2$ en Google (2\,161\,261 edificaciones), dentro del rango de sensibilidad reportado en la Sección~4 (\pend{rango de área apta}).
+  \item \pend{conclusión sobre la comparación: dónde coinciden y dónde difieren las fuentes}.
+  \item El rendimiento de MongoDB permitió trabajar con 4.4 millones de huellas: la carga tomó 82.1~s y 38.7~s y una consulta espacial pasó de recorrer toda la colección (7.3~s en Microsoft) a examinar 5 documentos (2~ms).
+  \item \textbf{Trabajo futuro:} integrar orientación e inclinación con un modelo digital de superficie, estimar la generación con irradiación solar (por ejemplo, datos del IDEAM o de la UPME) y validar una muestra de municipios en campo o con imágenes.
+\end{itemize}
