@@ -1,0 +1,60 @@
+% Sección 3 (Sam): colección results. Los \pend se completan con docs/resultados/resumen_resultados.md.
+\section{Resultados por Municipio y Fuente}\label{sec:resultados}
+
+\subsection{La colección \texttt{results}}
+\texttt{src/03\_build\_results.py} agrega cada colección de edificios por \texttt{municipality\_code} con una sola agregación de MongoDB y escribe el resultado con \texttt{\$merge} en \texttt{results}. No hay \emph{join} espacial: el municipio se asignó en el ETL, y el índice compuesto \texttt{(municipality\_code, area\_m2)} apoya la agrupación. Cada documento guarda los parámetros del criterio y la fecha de cálculo (Cuadro~\ref{tab:dic_results}). El índice único \texttt{(municipality\_code, source)} y \texttt{\$merge} con \texttt{whenMatched: replace} hacen que repetir el cálculo reemplace los documentos en lugar de duplicarlos.
+
+\begin{table}[H]
+\centering
+\small
+\rowcolors{2}{gray!12}{white}
+\begin{tabularx}{\textwidth}{l l X}
+\toprule
+\textbf{Campo} & \textbf{Tipo} & \textbf{Descripción} \\
+\midrule
+\texttt{municipality\_code} & String & Código DIVIPOLA del municipio PDET. \\
+\texttt{source} & String & \texttt{microsoft} o \texttt{google}. \\
+\texttt{building\_count} & Int & Edificios del municipio en la fuente. \\
+\texttt{total\_roof\_area\_m2} & Double & Suma de \texttt{area\_m2} de todos los edificios. \\
+\texttt{suitable\_count}, \texttt{suitable\_area\_m2} & Int, Double & Techos aptos y su área. \\
+\texttt{params} & Object & \texttt{min\_area\_m2}, \texttt{min\_confidence} (solo Google) y \texttt{crs\_area}. \\
+\texttt{computed\_at} & Date & Fecha y hora del cálculo. \\
+\bottomrule
+\end{tabularx}
+\caption{Documentos de la colección \texttt{results}.}
+\label{tab:dic_results}
+\end{table}
+
+\begin{lstlisting}[style=lab]
+{ $group: { _id: "$municipality_code", building_count: { $sum: 1 },
+            total_roof_area_m2: { $sum: "$area_m2" },
+            suitable_count: { $sum: { $cond: [ { $and: [ {$gte:["$area_m2",15]}, {$gte:["$confidence",0.70]} ] }, 1, 0 ] } },
+            suitable_area_m2: { $sum: { $cond: [ { $and: [ {$gte:["$area_m2",15]}, {$gte:["$confidence",0.70]} ] }, "$area_m2", 0 ] } } } }
+{ $project: { municipality_code: "$_id", source: "google", params: {...}, computed_at: ... } }
+{ $merge: { into: "results", on: ["municipality_code", "source"], whenMatched: "replace" } }
+\end{lstlisting}
+
+\subsection{Resultados}
+\begin{table}[H]
+\centering
+\small
+\rowcolors{2}{gray!12}{white}
+\begin{tabularx}{\textwidth}{X r r}
+\toprule
+ & \textbf{Microsoft} & \textbf{Google} \\
+\midrule
+Municipios con edificios & \pend{170} & \pend{165} \\
+Edificios & \pend{N} & \pend{N} \\
+Área total de huellas (km$^2$) & \pend{km2} & \pend{km2} \\
+Techos aptos & \pend{N} & \pend{N} \\
+Área apta (km$^2$) & \pend{km2} & \pend{km2} \\
+Tiempo de la agregación (s) & \pend{s} & \pend{s} \\
+\bottomrule
+\end{tabularx}
+\caption{Resultados globales con el criterio base (\texttt{docs/resultados/resumen\_resultados.md}).}
+\label{tab:resultados}
+\end{table}
+
+\textbf{Verificación.} La suma de \texttt{building\_count} en \texttt{results} coincide con el número de documentos de cada colección (\pend{OK/FALLA}). Los municipios sin edificios de Google se registran con cero y la marca \texttt{sin\_datos} en \texttt{results.csv}.
+
+\pend{una o dos frases: los tres municipios con más área apta en cada fuente}

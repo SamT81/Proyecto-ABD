@@ -1,0 +1,11 @@
+# Parámetros de la colección results y del análisis de sensibilidad (Entrega 4).
+# El criterio de techo apto base está en config/params.yaml (roof_suitability).
+results:
+  collection: "results"
+  out_dir: "docs/resultados"
+  csv: "docs/resultados/results.csv"
+  sensitivity_csv: "docs/resultados/sensibilidad.csv"
+  summary_md: "docs/resultados/resumen_resultados.md"
+sensitivity:
+  min_area_m2: [10, 15, 25]
+  min_confidence: [0.60, 0.70, 0.80]   # solo Google
