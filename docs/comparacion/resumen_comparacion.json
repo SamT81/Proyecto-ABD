@@ -1,0 +1,41 @@
+{
+  "municipios": 170,
+  "municipios_comparables": 165,
+  "municipios_sin_datos_google": [
+    "05475",
+    "05873",
+    "27099",
+    "27450",
+    "27491"
+  ],
+  "microsoft": {
+    "edificios": 1761043,
+    "area_total_km2": 221.13,
+    "techos_aptos": 1756529,
+    "area_apta_km2": 221.07
+  },
+  "google": {
+    "edificios": 2694782,
+    "area_total_km2": 223.01,
+    "techos_aptos": 2161261,
+    "area_apta_km2": 206.28
+  },
+  "correlacion": {
+    "conteo_pearson": 0.9152,
+    "conteo_spearman": 0.9038,
+    "area_apta_pearson": 0.9855,
+    "area_apta_spearman": 0.9371
+  },
+  "razon_google_microsoft": {
+    "conteo_mediana": 1.4,
+    "area_apta_mediana": 0.922,
+    "municipios_google_mayor_conteo": 133,
+    "municipios_google_mayor_area_apta": 60,
+    "error_relativo_abs_medio_area_apta": 0.246
+  },
+  "concordancia_ranking": {
+    "k": 20,
+    "interseccion_top_k": 17,
+    "spearman_rangos": 0.9371
+  }
+}
