@@ -1,0 +1,43 @@
+% Sección 5 (Juan): comparación entre fuentes. Las tablas las genera src/04_compare_sources.py en docs/comparacion/.
+\section{Comparación entre Microsoft y Google}\label{sec:comparacion}
+\texttt{src/04\_compare\_sources.py} compara las dos fuentes sobre los mismos municipios: diferencia absoluta y relativa del número de edificios y del área apta, razón Google/Microsoft, correlaciones, municipios con mayor discrepancia y concordancia de los rankings. Los municipios sin datos de Google (\pend{5}) se muestran aparte y no entran en las correlaciones ni en las discrepancias relativas.
+
+\subsection{Resumen}
+\begin{itemize}
+  \item \textbf{Correlación entre fuentes} (\pend{N} municipios comparables): conteo de edificios, Pearson \pend{r} y Spearman \pend{r}; área apta, Pearson \pend{r} y Spearman \pend{r}.
+  \item \textbf{Razón Google/Microsoft:} mediana de \pend{x} en número de edificios y de \pend{x} en área apta; Google tiene más edificios en \pend{N} municipios y más área apta en \pend{N}.
+  \item \textbf{Concordancia del ranking:} \pend{k} de los 20 municipios con más área apta son los mismos en ambas fuentes (Spearman de rangos \pend{r}).
+\end{itemize}
+
+\subsection{Mayores discrepancias}
+\begin{table}[H]
+\centering
+\footnotesize
+\resizebox{\linewidth}{!}{\tryinput{comparacion/top_discrepancias_abs.tex}}
+\caption{Los 10 municipios con mayor diferencia absoluta de área apta (Google $-$ Microsoft).}
+\label{tab:disc_abs}
+\end{table}
+
+\begin{table}[H]
+\centering
+\footnotesize
+\resizebox{\linewidth}{!}{\tryinput{comparacion/top_discrepancias_rel.tex}}
+\caption{Municipios con mayor diferencia relativa de área apta (con al menos 500 edificios en Microsoft).}
+\label{tab:disc_rel}
+\end{table}
+
+\subsection{Ranking por área apta}
+\begin{table}[H]
+\centering
+\footnotesize
+\tryinput{comparacion/ranking_area_apta.tex}
+\caption{Los 15 municipios con más área apta en cada fuente.}
+\label{tab:ranking}
+\end{table}
+
+\subsection{Interpretación}
+\begin{itemize}
+  \item \pend{por qué Google tiene más edificios pero menos área apta: edificios más pequeños y filtro de confianza}
+  \item \pend{explicación de los municipios con mayor discrepancia (por ejemplo, Amalfi, La Macarena, Saravena): cobertura, detección de construcciones pequeñas o rurales}
+  \item \pend{qué implica para la recomendación (ver Sección~\ref{sec:discusion})}
+\end{itemize}
