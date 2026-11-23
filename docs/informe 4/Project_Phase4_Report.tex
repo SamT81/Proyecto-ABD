@@ -36,7 +36,7 @@
 % Texto rojo = pendiente de completar con los resultados reales (no debe quedar ninguno en el PDF final).
 \providecommand{\pend}[1]{\textcolor{red}{\textbf{[#1]}}}
 % Incluye una tabla generada por los scripts (docs/...); busca en la carpeta del repo y en la del proyecto de Overleaf.
-\newcommand{\tryinput}[1]{\IfFileExists{../#1}{\input{../#1}}{\IfFileExists{#1}{\input{#1}}{\pend{falta \detokenize{#1}}}}}
+\newcommand{\tryinput}[1]{\IfFileExists{../../#1}{\input{../../#1}}{\IfFileExists{../../#1}{\input{../../#1}}{\IfFileExists{../#1}{\input{../#1}}{\IfFileExists{#1}{\input{#1}}{\pend{falta \detokenize{#1}}}}}}}
 % Incluye una figura de docs/mapas (en el repo: ../mapas/; en Overleaf: mapas/).
 \newcommand{\figbody}[3]{\begin{figure}[H]\centering\includegraphics[width=#2\linewidth]{#1}\caption{#3}\end{figure}}
 \newcommand{\tryfigure}[3]{\IfFileExists{../mapas/#1}{\figbody{../mapas/#1}{#2}{#3}}{\IfFileExists{mapas/#1}{\figbody{mapas/#1}{#2}{#3}}{\pend{falta la figura \detokenize{#1}}}}}
