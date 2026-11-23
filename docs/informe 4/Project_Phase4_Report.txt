@@ -20,33 +20,33 @@ Análisis del Potencial Solar, Comparación de Fuentes y Cartografı́a
            Pontificia Universidad Javeriana
                      23 de noviembre de 2026
 Contents
-1 Introducción                                                                                  2
+1 Introducción                                                                                 2
 
-2 Datos y Método en Breve                                                                       2
+2 Datos y Método en Breve                                                                      2
 
 3 Resultados por Municipio y Fuente                                                             3
   3.1 La colección results . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .       3
   3.2 Resultados . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .      4
 
-4 Análisis de sensibilidad                                                                      4
+4 Análisis de sensibilidad                                                                     4
 
-5 Comparación entre Microsoft y Google                                                          5
+5 Comparación entre Microsoft y Google                                                         5
 
 6 Cartografı́a                                                                                  6
 
-7 Discusión, alcances y limitaciones                                                           10
+7 Discusión, alcances y limitaciones                                                           9
 
-8 Conclusiones y trabajo futuro                                                                 10
+8 Conclusiones y trabajo futuro                                                                 9
 
 
 
 
 List of Figures
    1     Área de techos aptos por municipio PDET, Microsoft y Google, con la misma
-         escala de color. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .    7
-   2     Diferencia de área apta (Google − Microsoft) por municipio. . . . . . . . . .          8
-   3     Razón Google/Microsoft del número de edificios (escala logarı́tmica). . . . .         9
-   4     Municipios con más área apta en cada fuente. . . . . . . . . . . . . . . . . .        9
+         escala de color. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .   6
+   2     Diferencia de área apta (Google − Microsoft) por municipio. . . . . . . . . .         7
+   3     Razón Google/Microsoft del número de edificios (escala logarı́tmica). . . . .        8
+   4     Municipios con más área apta en cada fuente. . . . . . . . . . . . . . . . . .       8
 
 
 
@@ -55,7 +55,7 @@ List of Tables
    1     Entregas del proyecto. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .   2
    2     Componentes de la Entrega 4. . . . . . . . . . . . . . . . . . . . . . . . . . .     2
    3     Documentos de la colección results. . . . . . . . . . . . . . . . . . . . . . .     3
-   4     Resultados globales con el criterio base (docs/resultados/resumen resultados.md).           4
+   4     Resultados globales con el criterio base (docs/resultados/resumen resultados.md).          4
    5     Sensibilidad del número de techos y del área apta según umbrales de área y
          confianza. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 4
    6     Métricas de concordancia y discrepancia entre Google y Microsoft. . . . . . .       5
@@ -116,8 +116,8 @@ en Google, su confianza es de al menos 0.70. Los umbrales son parámetros (conf
 y cada resultado guarda los que se usaron (ver Sección 7).
 
 
-3       Resultados por Municipio y Fuente
-3.1      La colección results
+3     Resultados por Municipio y Fuente
+3.1    La colección results
 src/03 build results.py agrega cada colección de edificios por municipality code con
 una sola agregación de MongoDB y escribe el resultado con $merge en results. No hay
 join espacial: el municipio se asignó en el ETL, y el ı́ndice compuesto (municipality code,
@@ -126,47 +126,46 @@ fecha de cálculo (Cuadro 3). El ı́ndice único (municipality code, source) 
 whenMatched: "replace" hacen que repetir el cálculo reemplace los documentos sin dupli-
 carlos.
 
- Campo                                      Tipo           Descripción
- municipality code                          String         Código DIVIPOLA del municipio PDET.
- source                                     String         microsoft o google.
- building count                             Int            Edificios del municipio en la fuente.
- total roof area m2                         Double         Suma de area m2 de todos los edificios.
- suitable count, suitable area m2           Int, Double    Techos aptos y su área.
- params                                     Object         min area m2,      min confidence      (solo
-                                                           Google) y crs area.
- computed at                                Date           Fecha y hora del cálculo.
+ Campo                               Tipo          Descripción
+ municipality code                   String        Código DIVIPOLA del municipio PDET.
+ source                              String        microsoft o google.
+ building count                      Int           Edificios del municipio en la fuente.
+ total roof area m2                  Double        Suma de area m2 de todos los edificios.
+ suitable count, suitable area m2    Int, Double   Techos aptos y su área.
+ params                              Object        min area m2,      min confidence      (solo
+                                                   Google) y crs area.
+ computed at                         Date          Fecha y hora del cálculo.
 
-                           Table 3: Documentos de la colección results.
+                      Table 3: Documentos de la colección results.
 
- 1   { $group : {
- 2       _id : " $ mu nic ip al it y_ co de " ,
- 3       building_count : { $sum : 1 } ,
- 4       tota l_ ro of _a re a_ m2 : { $sum : " $area_m2 " } ,
- 5       suitable_count : { $sum : { $cond : [
- 6         { $and : [ { $gte : [" $area_m2 " , 15] } ,
- 7                        { $gte : [" $confidence " , 0.70] } ] } ,
- 8         1, 0 ] } },
- 9       suitable_area_m2 : { $sum : { $cond : [
-10         { $and : [ { $gte : [" $area_m2 " , 15] } ,
-11                        { $gte : [" $confidence " , 0.70] } ] } ,
-12         " $area_m2 " , 0 ] } } } } ,
-13   { $project : { muni cipali ty_cod e : " $_id " , source : " google " ,
-14                     params : {...} , computed_at : " $$NOW " } } ,
-15   { $merge : { into : " results " , on : [" municipality_code " , " source "] ,
-16                  whenMatched : " replace " } }
-
+ { $group: {
+    id: "$municipality code",
+   building count: { $sum: 1 },
+   total roof area m2: { $sum: "$area m2" },
+   suitable count: { $sum: { $cond: [
+      { $and: [ { $gte: ["$area m2", 15] }, { $gte: ["$confidence", 0.70] } ] }, 1, 0
+ ] } },
+   suitable area m2: { $sum: { $cond: [
+      { $and: [ { $gte: ["$area m2", 15] }, { $gte: ["$confidence", 0.70] } ] },
+ "$area m2", 0 ] } }
+ } },
+ { $project: { municipality code: "$ id", source: "google", params: {...},
+ computed at: "$$NOW" } },
+ { $merge: { into: "results", on: ["municipality code", "source"], whenMatched:
+ "replace" } }
 
 
 
-                                                     3
-3.2     Resultados
 
-                                                                           Microsoft      Google
- Municipios con edificios                                                          170         165
- Edificios                                                                   1,761,043   2,694,782
- Área total de huellas (km2 )                                                  221.13      223.01
- Techos aptos                                                                1,756,529   2,161,261
- Área apta (km2 )                                                              221.07      206.28
+                                             3
+3.2      Resultados
+
+                                                                               Microsoft      Google
+ Municipios con edificios                                                             170          165
+ Edificios                                                                      1,761,043    2,694,782
+ Área total de huellas (km2 )                                                     221.13       223.01
+ Techos aptos                                                                   1,756,529    2,161,261
+ Área apta (km2 )                                                                 221.07       206.28
 
 Table 4: Resultados globales con el criterio base (docs/resultados/resumen resultados.md).
 
@@ -179,24 +178,24 @@ en Microsoft y 14.96 km2 en Google), Valledupar (13.51 y 14.36 km2 ) y Buenavent
 y 7.07 km2 ).
 
 
-4     Análisis de sensibilidad
+4      Análisis de sensibilidad
 Para evaluar la estabilidad de las estimaciones frente a los criterios de selección, se recalculó
 el área apta en una sola pasada de agregación variando el área mı́nima de techo (10, 15 y
 25 m2 ) y, en Google, el umbral mı́nimo de confianza (0.60, 0.70 y 0.80).
 
- Fuente      Área mı́n. (m2 )        Confianza mı́n.   Techos aptos    Área apta (km2 )   % del área
- Microsoft                       10                —        1,761,029              221.13            100.00
- Microsoft                       15                —        1,756,529              221.07             99.97
- Microsoft                       25                —        1,648,601              218.79             98.94
- Google                          10              0.60       2,612,500              222.35             99.71
- Google                          10              0.70       2,233,751              207.20             92.91
- Google                          10              0.80       1,116,213              131.40             58.92
- Google                          15              0.60       2,476,119              220.64             98.94
- Google                          15              0.70       2,161,261              206.28             92.50
- Google                          15              0.80       1,113,090              131.36             58.90
- Google                          25              0.60       2,182,435              214.77             96.31
- Google                          25              0.70       1,967,116              202.37             90.75
- Google                          25              0.80       1,086,770              130.80             58.65
+    Fuente      Área mı́n. (m2 )   Confianza mı́n.   Techos aptos    Área apta (km2 )   % del área
+    Microsoft                 10                 —        1,761,029              221.13        100.00
+    Microsoft                 15                 —        1,756,529              221.07         99.97
+    Microsoft                 25                 —        1,648,601              218.79         98.94
+    Google                    10               0.60       2,612,500              222.35         99.71
+    Google                    10               0.70       2,233,751              207.20         92.91
+    Google                    10               0.80       1,116,213              131.40         58.92
+    Google                    15               0.60       2,476,119              220.64         98.94
+    Google                    15               0.70       2,161,261              206.28         92.50
+    Google                    15               0.80       1,113,090              131.36         58.90
+    Google                    25               0.60       2,182,435              214.77         96.31
+    Google                    25               0.70       1,967,116              202.37         90.75
+    Google                    25               0.80       1,086,770              130.80         58.65
 
 Table 5: Sensibilidad del número de techos y del área apta según umbrales de área y confianza.
 
@@ -204,7 +203,8 @@ Table 5: Sensibilidad del número de techos y del área apta según umbrales 
       apta en 2.34 km2 (−1.06 %, de 221.13 a 218.79 km2 ), mostrando alta estabilidad frente
       al criterio geométrico.
 
-                                                   4
+
+                                                      4
     • En Google, variar el área mı́nima entre 10 y 25 m2 (con confianza fija en 0.70) cambia
       el área apta solo en 4.83 km2 (−2.33 %), mientras que elevar la confianza de 0.60 a 0.80
       (con área mı́nima en 15 m2 ) reduce el área apta en 89.28 km2 (−40.46 %, de 220.64 a
@@ -245,22 +245,22 @@ nunca deben sumarse.
 
 
                                                5
- Pos.     Municipio (Microsoft)     Área apta (km2 )     Municipio (Google)       Área apta (km2 )
-     1    Santa Marta                             14.21   Santa Marta                          14.96
-     2    Valledupar                              13.51   Valledupar                           14.36
-     3    Buenaventura                             7.15   Buenaventura                          7.07
-     4    Florencia                                6.69   Florencia                             6.92
-     5    Turbo                                    4.66   Turbo                                 5.57
-     6    San Andrés de Tumaco                    4.53   Ciénaga                              3.64
-     7    Santander de Quilichao                   4.24   Santander de Quilichao                3.58
-     8    San Vicente del Caguán                  3.76   San Andrés de Tumaco                 3.44
-     9    Tibú                                    3.57   Apartadó                             3.33
-    10    Ciénaga                                 3.47   Tame                                  2.98
+    Pos. Municipio (Microsoft) Área apta (km2 ) Municipio (Google)         Área apta (km2 )
+       1   Santa Marta                     14.21   Santa Marta                          14.96
+       2   Valledupar                      13.51   Valledupar                           14.36
+       3   Buenaventura                     7.15   Buenaventura                          7.07
+       4   Florencia                        6.69   Florencia                             6.92
+       5   Turbo                            4.66   Turbo                                 5.57
+       6   San Andrés de Tumaco            4.53   Ciénaga                              3.64
+       7   Santander de Quilichao           4.24   Santander de Quilichao                3.58
+       8   San Vicente del Caguán          3.76   San Andrés de Tumaco                 3.44
+       9   Tibú                            3.57   Apartadó                             3.33
+      10   Ciénaga                         3.47   Tame                                  2.98
 
      Table 7: Los 10 municipios PDET con mayor área de techos aptos en cada fuente.
 
 
-6        Cartografı́a
+6     Cartografı́a
 Los mapas (src/05 make maps.py, GeoPandas y Matplotlib) usan los polı́gonos del MGN2025
 y los resultados de results.csv. Los municipios sin datos de Google se dibujan con rayado
 gris.
@@ -268,19 +268,18 @@ gris.
 
 
 
-                                              6
-Figure 1: Área de techos aptos por municipio PDET, Microsoft y Google, con la misma
+Figure 1: Área de techos aptos por municipio PDET, Microsoft y Google, con la misma
 escala de color.
 
-   La mayor concentración de área apta se ubica en las cabeceras urbanas de Santa Marta,
+                                            6
+   La mayor concentración de área apta se ubica en las cabeceras urbanas de Santa Marta,
 Valledupar, Buenaventura, Florencia y Turbo, mientras que los municipios rurales de la
 Amazonı́a y el Pacı́fico presentan valores bajos y dispersos.
 
 
 
 
-                                            7
-          Figure 2: Diferencia de área apta (Google − Microsoft) por municipio.
+          Figure 2: Diferencia de área apta (Google − Microsoft) por municipio.
 
     Google supera a Microsoft en 60 municipios urbanos densos (Turbo +0.91 km2 , Valledupar
 +0.85 km2 , Santa Marta +0.76 km2 ), mientras que Microsoft registra mayor área en 105 mu-
@@ -290,7 +289,7 @@ Tumaco −1.08 km2 ). Los cinco municipios sin datos en Google aparecen con raya
 
 
 
-                                             8
+                                             7
 Figure 3: Razón Google/Microsoft del número de edificios (escala logarı́tmica).
 
 
@@ -298,7 +297,7 @@ Tumaco −1.08 km2 ). Los cinco municipios sin datos en Google aparecen con raya
 
            Figure 4: Municipios con más área apta en cada fuente.
 
-                                       9
+                                       8
    Santa Marta (14.21 km2 en Microsoft; 14.96 km2 en Google), Valledupar (13.51 y 14.36 km2 )
 y Buenaventura (7.15 y 7.07 km2 ) encabezan ambas fuentes; los cinco primeros concentran
 más del 20 % del área apta total.
@@ -342,5 +341,5 @@ BY 4.0 y ODbL v1.0). Lı́mites municipales: DANE MGN 2025. Municipios PDET: ART
 
 
 
-                                              10
+                                               9
 

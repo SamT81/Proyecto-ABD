@@ -127,26 +127,25 @@ Los límites provienen de la capa municipal del Marco Geoestadístico Nacional 2
 \label{tab:dic_results}
 \end{table}
 
-\noindent\begin{minipage}{\linewidth}
-\begin{lstlisting}[style=lab]
-{ $group: {
-    _id: "$municipality_code",
-    building_count: { $sum: 1 },
-    total_roof_area_m2: { $sum: "$area_m2" },
-    suitable_count: { $sum: { $cond: [
-      { $and: [ { $gte: ["$area_m2", 15] },
-                { $gte: ["$confidence", 0.70] } ] },
-      1, 0 ] } },
-    suitable_area_m2: { $sum: { $cond: [
-      { $and: [ { $gte: ["$area_m2", 15] },
-                { $gte: ["$confidence", 0.70] } ] },
-      "$area_m2", 0 ] } } } },
-{ $project: { municipality_code: "$_id", source: "google",
-              params: {...}, computed_at: "$$NOW" } },
-{ $merge: { into: "results", on: ["municipality_code", "source"],
-            whenMatched: "replace" } }
-\end{lstlisting}
-\end{minipage}
+\noindent\begingroup
+\setlength{\fboxsep}{8pt}%
+\setlength{\fboxrule}{0.5pt}%
+\fcolorbox{gray!40}{codebg}{%
+\begin{minipage}{\dimexpr\textwidth-2\fboxsep-2\fboxrule\relax}
+\ttfamily\footnotesize
+\{ \$group: \{\\
+\hspace*{1.2em}\_id: "\$municipality\_code",\\
+\hspace*{1.2em}building\_count: \{ \$sum: 1 \},\\
+\hspace*{1.2em}total\_roof\_area\_m2: \{ \$sum: "\$area\_m2" \},\\
+\hspace*{1.2em}suitable\_count: \{ \$sum: \{ \$cond: [\\
+\hspace*{2.4em}\{ \$and: [ \{ \$gte: ["\$area\_m2", 15] \}, \{ \$gte: ["\$confidence", 0.70] \} ] \}, 1, 0 ] \} \},\\
+\hspace*{1.2em}suitable\_area\_m2: \{ \$sum: \{ \$cond: [\\
+\hspace*{2.4em}\{ \$and: [ \{ \$gte: ["\$area\_m2", 15] \}, \{ \$gte: ["\$confidence", 0.70] \} ] \}, "\$area\_m2", 0 ] \} \}\\
+\} \},\\
+\{ \$project: \{ municipality\_code: "\$\_id", source: "google", params: \{...\}, computed\_at: "\$\$NOW" \} \},\\
+\{ \$merge: \{ into: "results", on: ["municipality\_code", "source"], whenMatched: "replace" \} \}
+\end{minipage}}%
+\endgroup
 
 \subsection{Resultados}
 \begin{table}[H]
@@ -179,7 +178,7 @@ Para evaluar la estabilidad de las estimaciones frente a los criterios de selecc
 \centering
 \small
 \rowcolors{2}{gray!12}{white}
-\begin{tabular}{lrrrrr}
+\footnotesize\setlength{\tabcolsep}{5pt}\begin{tabular}{lrrrrr}
 \toprule
 \textbf{Fuente} & \textbf{Área mín. (m$^2$)} & \textbf{Confianza mín.} & \textbf{Techos aptos} & \textbf{Área apta (km$^2$)} & \textbf{\% del área} \\
 \midrule
@@ -238,7 +237,7 @@ Tasa de solapamiento espacial (muestra Google sobre Microsoft) & $71.2\,\%$ \\
 \centering
 \small
 \rowcolors{2}{gray!12}{white}
-\begin{tabular}{r l r l r}
+\footnotesize\setlength{\tabcolsep}{4.5pt}\begin{tabular}{r l r l r}
 \toprule
 \textbf{Pos.} & \textbf{Municipio (Microsoft)} & \textbf{Área apta (km$^2$)} & \textbf{Municipio (Google)} & \textbf{Área apta (km$^2$)} \\
 \midrule
@@ -302,7 +301,7 @@ Santa Marta ($14.21$\,km$^2$ en Microsoft; $14.96$\,km$^2$ en Google), Valledupa
 \end{itemize}
 
 \section{Conclusiones y trabajo futuro}\label{sec:conclusiones}
-Se implementó un flujo geoespacial reproducible e idempotente sobre MongoDB 7 que procesó $4{,}455{,}825$ edificaciones en los 170 municipios PDET. La separación entre almacenamiento espacial en WGS84 (\texttt{EPSG:4326} con índice \texttt{2dsphere}), cálculo métrico en \texttt{EPSG:9377}, carga paralela con bitácora SHA-256 (\texttt{ingestion\_log}) y materialización mediante \texttt{\$merge} permitió reducir las consultas espaciales a milisegundos y recalcular escenarios de sensibilidad en una sola pasada. Como trabajo futuro se propone integrar mapas de irradiación solar (UPME/IDEAM), factores de aprovechamiento efectivo (LiDAR) y capacidad de redes locales para estimar generación eléctrica efectiva ($\mathrm{MWh/año}$).
+Se implementó un flujo geoespacial reproducible e idempotente sobre MongoDB 7 que procesó $4{,}455{,}825$ edificaciones en los 170 municipios PDET. La separación entre almacenamiento espacial en WGS84 (\texttt{EPSG:4326} con índice \texttt{2dsphere}), cálculo métrico en \texttt{EPSG:9377}, carga paralela con bitácora SHA-256 (\texttt{ingestion\_log}) y materialización mediante \texttt{\$merge} permitió reducir las consultas espaciales a milisegundos y recalcular escenarios de sensibilidad en una sola pasada. Como trabajo futuro se propone integrar mapas de irradiación solar (UPME/IDEAM), factores de aprovechamiento efectivo (LiDAR) y capacidad de redes locales para estimar generación eléctrica efectiva ($\mathrm{MWh}$/año).
 
 \section*{Atribución de los datos}
 Microsoft Global ML Building Footprints (ODbL v1.0). Google Open Buildings v3 (CC BY 4.0 y ODbL v1.0). Límites municipales: DANE MGN 2025. Municipios PDET: ART (Decreto 893 de 2017).
