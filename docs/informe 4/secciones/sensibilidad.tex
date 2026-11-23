@@ -1,0 +1,24 @@
+% Sección 4 (Sam): sensibilidad al criterio de techo apto. Se completa con docs/resultados/sensibilidad.csv.
+\section{Sensibilidad del Criterio de Techo Apto}
+El criterio base (área $\geq$ 15\,m$^2$ y, en Google, confianza $\geq$ 0.70) es un supuesto. Para medir cuánto condiciona el resultado, el script calcula el área apta total con otros umbrales (área mínima de 10, 15 y 25\,m$^2$ y confianza mínima de 0.60, 0.70 y 0.80), todos en una sola pasada por cada colección (un \texttt{\$sum} por combinación).
+
+\begin{table}[H]
+\centering
+\small
+\rowcolors{2}{gray!12}{white}
+\begin{tabular}{l r r r r r}
+\toprule
+\textbf{Fuente} & \textbf{Área mín. (m$^2$)} & \textbf{Confianza mín.} & \textbf{Techos aptos} & \textbf{Área apta (km$^2$)} & \textbf{\% del área} \\
+\midrule
+\pend{copiar las 12 filas de docs/resultados/sensibilidad.csv: 3 de Microsoft y 9 de Google} \\
+\bottomrule
+\end{tabular}
+\caption{Área apta total según los umbrales.}
+\label{tab:sensibilidad}
+\end{table}
+
+\begin{itemize}
+  \item \pend{cuánto cambia el área apta de Microsoft al pasar de 10 a 25\,m$^2$}
+  \item \pend{cuánto cambia el área apta de Google al variar la confianza de 0.60 a 0.80 y el área mínima}
+  \item \pend{conclusión: qué umbral pesa más y cómo se refleja en el rango que se recomienda}
+\end{itemize}
