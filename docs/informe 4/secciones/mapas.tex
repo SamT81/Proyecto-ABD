@@ -1,0 +1,17 @@
+% Sección 6 (Carlos): mapas. Las figuras las genera src/05_make_maps.py en docs/mapas/.
+\section{Cartografía}\label{sec:mapas}
+Los mapas (\texttt{src/05\_make\_maps.py}, GeoPandas y Matplotlib) usan los polígonos del MGN2025 y los resultados de \texttt{results.csv}. Los municipios sin datos de Google se dibujan con rayado gris. Todas las figuras llevan la atribución de las licencias (ODbL y CC BY 4.0).
+
+\tryfigure{mapa_area_apta.png}{0.95}{Área de techos aptos por municipio PDET, Microsoft y Google, con la misma escala de color.}
+
+La mayor concentración de área apta se ubica en las cabeceras urbanas más pobladas de las subregiones Sierra Nevada y Perijá (Santa Marta y Valledupar), Pacífico Medio (Buenaventura), Cuenca del Caguán (Florencia) y Urabá Antioqueño (Turbo), mientras que los municipios predominantemente rurales de la Amazonía y el Pacífico presentan valores bajos y dispersos.
+
+\tryfigure{mapa_diferencia.png}{0.7}{Diferencia de área apta (Google $-$ Microsoft) por municipio.}
+
+Google supera a Microsoft en 60 municipios —especialmente en centros urbanos con alta densidad de construcciones pequeñas como Santa Marta ($+0.76\text{ km}^2$), Valledupar ($+0.85\text{ km}^2$) y Turbo ($+0.91\text{ km}^2$)—, mientras que Microsoft registra mayor área apta en 105 municipios rurales y de selva húmeda como San Vicente del Caguán ($-1.35\text{ km}^2$), Saravena ($-1.11\text{ km}^2$) y Tumaco ($-1.08\text{ km}^2$). Los cinco municipios sin datos en Google (Murindó, Vigía del Fuerte, Bojayá, Medio San Juan y Nóvita, en Antioquia y Chocó) aparecen con rayado gris.
+
+\tryfigure{mapa_razon_conteo.png}{0.7}{Razón Google/Microsoft del número de edificios (escala logarítmica).}
+
+\tryfigure{top_area_apta.png}{0.95}{Municipios con más área apta en cada fuente.}
+
+Santa Marta ($14.21\text{ km}^2$ en Microsoft; $14.96\text{ km}^2$ en Google), Valledupar ($13.51$ y $14.36\text{ km}^2$) y Buenaventura ($7.15$ y $7.07\text{ km}^2$) encabezan el ranking en ambas fuentes; junto con Florencia y Turbo, los cinco primeros municipios concentran más del $20\,\%$ del área apta total de los 170 municipios PDET.

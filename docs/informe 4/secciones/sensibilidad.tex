@@ -1,24 +1,35 @@
-% Sección 4 (Sam): sensibilidad al criterio de techo apto. Se completa con docs/resultados/sensibilidad.csv.
-\section{Sensibilidad del Criterio de Techo Apto}
-El criterio base (área $\geq$ 15\,m$^2$ y, en Google, confianza $\geq$ 0.70) es un supuesto. Para medir cuánto condiciona el resultado, el script calcula el área apta total con otros umbrales (área mínima de 10, 15 y 25\,m$^2$ y confianza mínima de 0.60, 0.70 y 0.80), todos en una sola pasada por cada colección (un \texttt{\$sum} por combinación).
+\section{Análisis de sensibilidad}\label{sec:sensibilidad}
+Para evaluar la estabilidad de las estimaciones frente a los criterios de selección, se recalculó el área apta variando el área mínima de techo ($10$, $15$ y $25\text{ m}^2$) y, en Google, el umbral mínimo de confianza ($0.60$, $0.70$ y $0.80$).
 
 \begin{table}[H]
 \centering
 \small
 \rowcolors{2}{gray!12}{white}
-\begin{tabular}{l r r r r r}
+\begin{tabular}{lrrrrr}
 \toprule
-\textbf{Fuente} & \textbf{Área mín. (m$^2$)} & \textbf{Confianza mín.} & \textbf{Techos aptos} & \textbf{Área apta (km$^2$)} & \textbf{\% del área} \\
+\textbf{Fuente} & \textbf{Área mín. ($\text{m}^2$)} & \textbf{Confianza mín.} & \textbf{Techos aptos} & \textbf{Área apta ($\text{km}^2$)} & \textbf{\% del área} \\
 \midrule
-\pend{copiar las 12 filas de docs/resultados/sensibilidad.csv: 3 de Microsoft y 9 de Google} \\
+Microsoft & 10 & --- & 1{,}761{,}029 & 221.13 & 100.00 \\
+Microsoft & 15 & --- & 1{,}756{,}529 & 221.07 & 99.97 \\
+Microsoft & 25 & --- & 1{,}648{,}601 & 218.79 & 98.94 \\
+\midrule
+Google & 10 & 0.60 & 2{,}612{,}500 & 222.35 & 99.71 \\
+Google & 10 & 0.70 & 2{,}233{,}751 & 207.20 & 92.91 \\
+Google & 10 & 0.80 & 1{,}116{,}213 & 131.40 & 58.92 \\
+Google & 15 & 0.60 & 2{,}476{,}119 & 220.64 & 98.94 \\
+Google & 15 & 0.70 & 2{,}161{,}261 & 206.28 & 92.50 \\
+Google & 15 & 0.80 & 1{,}113{,}090 & 131.36 & 58.90 \\
+Google & 25 & 0.60 & 2{,}182{,}435 & 214.77 & 96.31 \\
+Google & 25 & 0.70 & 1{,}967{,}116 & 202.37 & 90.75 \\
+Google & 25 & 0.80 & 1{,}086{,}770 & 130.80 & 58.65 \\
 \bottomrule
 \end{tabular}
-\caption{Área apta total según los umbrales.}
+\caption{Sensibilidad del número de techos y del área apta según umbrales de área y confianza.}
 \label{tab:sensibilidad}
 \end{table}
 
 \begin{itemize}
-  \item \pend{cuánto cambia el área apta de Microsoft al pasar de 10 a 25\,m$^2$}
-  \item \pend{cuánto cambia el área apta de Google al variar la confianza de 0.60 a 0.80 y el área mínima}
-  \item \pend{conclusión: qué umbral pesa más y cómo se refleja en el rango que se recomienda}
+  \item Al aumentar el umbral de área mínima de $10$ a $25\text{ m}^2$, Microsoft apenas reduce su área apta en $2.34\text{ km}^2$ ($-1.06\,\%$, pasando de $221.13$ a $218.79\text{ km}^2$), lo que demuestra alta estabilidad frente al criterio geométrico.
+  \item En Google, variar el área mínima entre $10$ y $25\text{ m}^2$ (con confianza fija en $0.70$) cambia el área apta solo en $4.83\text{ km}^2$ ($-2.33\,\%$), mientras que elevar la confianza de $0.60$ a $0.80$ (con área mínima en $15\text{ m}^2$) reduce el área apta en $89.28\text{ km}^2$ ($-40.46\,\%$, de $220.64$ a $131.36\text{ km}^2$).
+  \item El umbral de confianza domina ampliamente la variabilidad del modelo frente al corte de área mínima; por ello se recomienda a la UPME trabajar con el rango base entre $206.28\text{ km}^2$ (Google con confianza $\ge 0.70$) y $221.07\text{ km}^2$ (Microsoft), acotado globalmente entre $130.80$ y $222.35\text{ km}^2$.
 \end{itemize}

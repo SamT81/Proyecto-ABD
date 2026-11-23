@@ -1,0 +1,9 @@
+# Parámetros de los mapas de la Entrega 4.
+maps:
+  input_csv: "docs/resultados/results.csv"          # salida de src/03_build_results.py
+  fallback_csv: "docs/eda/por_municipio.csv"        # EDA de la Entrega 3 (para empezar antes de tener results)
+  municipalities_geojson: "data/processed/pdet_municipios.geojson"   # salida de src/01_load_municipalities.py (Entrega 2)
+  out_dir: "docs/mapas"
+  dpi: 200
+  top_n: 15
+  attribution: "Datos: Microsoft Global ML Building Footprints (ODbL v1.0); Google Open Buildings v3 (CC BY 4.0 y ODbL v1.0); límites: DANE MGN 2025."

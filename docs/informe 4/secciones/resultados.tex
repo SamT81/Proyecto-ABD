@@ -1,4 +1,4 @@
-% Sección 3 (Sam): colección results. Los \pend se completan con docs/resultados/resumen_resultados.md.
+% Sección 3 (Sam): colección results. Completada con docs/resultados/resumen_resultados.md.
 \section{Resultados por Municipio y Fuente}\label{sec:resultados}
 
 \subsection{La colección \texttt{results}}
@@ -43,18 +43,18 @@
 \toprule
  & \textbf{Microsoft} & \textbf{Google} \\
 \midrule
-Municipios con edificios & \pend{170} & \pend{165} \\
-Edificios & \pend{N} & \pend{N} \\
-Área total de huellas (km$^2$) & \pend{km2} & \pend{km2} \\
-Techos aptos & \pend{N} & \pend{N} \\
-Área apta (km$^2$) & \pend{km2} & \pend{km2} \\
-Tiempo de la agregación (s) & \pend{s} & \pend{s} \\
+Municipios con edificios & 170 & 165 \\
+Edificios & 1{,}761{,}043 & 2{,}694{,}782 \\
+Área total de huellas (km$^2$) & 221.13 & 223.01 \\
+Techos aptos & 1{,}756{,}529 & 2{,}161{,}261 \\
+Área apta (km$^2$) & 221.07 & 206.28 \\
+Tiempo de la agregación (s) & --- & --- \\
 \bottomrule
 \end{tabularx}
 \caption{Resultados globales con el criterio base (\texttt{docs/resultados/resumen\_resultados.md}).}
 \label{tab:resultados}
 \end{table}
 
-\textbf{Verificación.} La suma de \texttt{building\_count} en \texttt{results} coincide con el número de documentos de cada colección (\pend{OK/FALLA}). Los municipios sin edificios de Google se registran con cero y la marca \texttt{sin\_datos} en \texttt{results.csv}.
+\textbf{Verificación.} La suma de \texttt{building\_count} en \texttt{results} coincide con el número de documentos de cada colección (OK: 1{,}761{,}043 en Microsoft y 2{,}694{,}782 en Google). Los municipios sin edificios de Google se registran con cero y la marca \texttt{sin\_datos} en \texttt{results.csv}.
 
-\pend{una o dos frases: los tres municipios con más área apta en cada fuente}
+En ambas fuentes, los tres municipios con mayor área apta son Santa Marta ($14.21\text{ km}^2$ en Microsoft y $14.96\text{ km}^2$ en Google), Valledupar ($13.51$ y $14.36\text{ km}^2$) y Buenaventura ($7.15$ y $7.07\text{ km}^2$).
