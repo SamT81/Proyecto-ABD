@@ -126,58 +126,47 @@ fecha de cálculo (Cuadro 3). El ı́ndice único (municipality code, source) 
 whenMatched: "replace" hacen que repetir el cálculo reemplace los documentos sin dupli-
 carlos.
 
- Campo                                     Tipo           Descripción
- municipality code                         String         Código DIVIPOLA del municipio PDET.
- source                                    String         microsoft o google.
- building count                            Int            Edificios del municipio en la fuente.
- total roof area m2                        Double         Suma de area m2 de todos los edificios.
- suitable count, suitable area m2          Int, Double    Techos aptos y su área.
- params                                    Object         min area m2,      min confidence      (solo
-                                                          Google) y crs area.
- computed at                               Date           Fecha y hora del cálculo.
+ Campo                                      Tipo           Descripción
+ municipality code                          String         Código DIVIPOLA del municipio PDET.
+ source                                     String         microsoft o google.
+ building count                             Int            Edificios del municipio en la fuente.
+ total roof area m2                         Double         Suma de area m2 de todos los edificios.
+ suitable count, suitable area m2           Int, Double    Techos aptos y su área.
+ params                                     Object         min area m2,      min confidence      (solo
+                                                           Google) y crs area.
+ computed at                                Date           Fecha y hora del cálculo.
 
                            Table 3: Documentos de la colección results.
 
-
  1   { $group : {
- 2        _id : " $ mu nic ip al it y_ co de " ,
- 3        building_count : { $sum : 1 } ,
- 4        tota l_ ro of _a re a_ m2 : { $sum : " $area_m2 " } ,
- 5        suitable_count : { $sum : { $cond : [
- 6           { $and : [ { $gte : [" $area_m2 " , 15] } ,
- 7                         { $gte : [" $confidence " , 0.70] } ] } ,
- 8           1, 0 ] } },
- 9        suitable_area_m2 : { $sum : { $cond : [
-10           { $and : [ { $gte : [" $area_m2 " , 15] } ,
-11                         { $gte : [" $confidence " , 0.70] } ] } ,
-12           " $area_m2 " , 0 ] } }
-13   } },
-14   { $project : {
-15        munic ipalit y_cod e : " $_id " ,
-16        source : " google " ,
-17        params : { min_area_m2 : 15 , min_confidence : 0.70 } ,
-18        computed_at : " $$NOW "
-19   } },
-20   { $merge : {
-21        into : " results " ,
-22        on : [" munic ipali ty_cod e " , " source "] ,
-
-
-                                                    3
-23         whenMatched : " replace "
-24   } }
+ 2       _id : " $ mu nic ip al it y_ co de " ,
+ 3       building_count : { $sum : 1 } ,
+ 4       tota l_ ro of _a re a_ m2 : { $sum : " $area_m2 " } ,
+ 5       suitable_count : { $sum : { $cond : [
+ 6         { $and : [ { $gte : [" $area_m2 " , 15] } ,
+ 7                        { $gte : [" $confidence " , 0.70] } ] } ,
+ 8         1, 0 ] } },
+ 9       suitable_area_m2 : { $sum : { $cond : [
+10         { $and : [ { $gte : [" $area_m2 " , 15] } ,
+11                        { $gte : [" $confidence " , 0.70] } ] } ,
+12         " $area_m2 " , 0 ] } } } } ,
+13   { $project : { muni cipali ty_cod e : " $_id " , source : " google " ,
+14                     params : {...} , computed_at : " $$NOW " } } ,
+15   { $merge : { into : " results " , on : [" municipality_code " , " source "] ,
+16                  whenMatched : " replace " } }
 
 
 
 
-3.2        Resultados
+                                                     3
+3.2     Resultados
 
-                                                                            Microsoft      Google
- Municipios con edificios                                                           170         165
- Edificios                                                                    1,761,043   2,694,782
- Área total de huellas (km2 )                                                   221.13      223.01
- Techos aptos                                                                 1,756,529   2,161,261
- Área apta (km2 )                                                               221.07      206.28
+                                                                           Microsoft      Google
+ Municipios con edificios                                                          170         165
+ Edificios                                                                   1,761,043   2,694,782
+ Área total de huellas (km2 )                                                  221.13      223.01
+ Techos aptos                                                                1,756,529   2,161,261
+ Área apta (km2 )                                                              221.07      206.28
 
 Table 4: Resultados globales con el criterio base (docs/resultados/resumen resultados.md).
 
@@ -190,33 +179,33 @@ en Microsoft y 14.96 km2 en Google), Valledupar (13.51 y 14.36 km2 ) y Buenavent
 y 7.07 km2 ).
 
 
-4      Análisis de sensibilidad
+4     Análisis de sensibilidad
 Para evaluar la estabilidad de las estimaciones frente a los criterios de selección, se recalculó
 el área apta en una sola pasada de agregación variando el área mı́nima de techo (10, 15 y
 25 m2 ) y, en Google, el umbral mı́nimo de confianza (0.60, 0.70 y 0.80).
 
- Fuente         Área mı́n. (m2 )      Confianza mı́n.   Techos aptos    Área apta (km2 )   % del área
- Microsoft                       10                 —        1,761,029              221.13            100.00
- Microsoft                       15                 —        1,756,529              221.07             99.97
- Microsoft                       25                 —        1,648,601              218.79             98.94
- Google                          10               0.60       2,612,500              222.35             99.71
- Google                          10               0.70       2,233,751              207.20             92.91
- Google                          10               0.80       1,116,213              131.40             58.92
- Google                          15               0.60       2,476,119              220.64             98.94
- Google                          15               0.70       2,161,261              206.28             92.50
- Google                          15               0.80       1,113,090              131.36             58.90
- Google                          25               0.60       2,182,435              214.77             96.31
- Google                          25               0.70       1,967,116              202.37             90.75
- Google                          25               0.80       1,086,770              130.80             58.65
+ Fuente      Área mı́n. (m2 )        Confianza mı́n.   Techos aptos    Área apta (km2 )   % del área
+ Microsoft                       10                —        1,761,029              221.13            100.00
+ Microsoft                       15                —        1,756,529              221.07             99.97
+ Microsoft                       25                —        1,648,601              218.79             98.94
+ Google                          10              0.60       2,612,500              222.35             99.71
+ Google                          10              0.70       2,233,751              207.20             92.91
+ Google                          10              0.80       1,116,213              131.40             58.92
+ Google                          15              0.60       2,476,119              220.64             98.94
+ Google                          15              0.70       2,161,261              206.28             92.50
+ Google                          15              0.80       1,113,090              131.36             58.90
+ Google                          25              0.60       2,182,435              214.77             96.31
+ Google                          25              0.70       1,967,116              202.37             90.75
+ Google                          25              0.80       1,086,770              130.80             58.65
 
 Table 5: Sensibilidad del número de techos y del área apta según umbrales de área y confianza.
 
-                                                    4
-    • Al aumentar el umbral de área mı́nima de 10 a 25 m2 , Microsoft apenas reduce su área
+    • Al aumentar el umbral de área mı́nima de 10 a 25 m2 , Microsoft apenas reduce su área
       apta en 2.34 km2 (−1.06 %, de 221.13 a 218.79 km2 ), mostrando alta estabilidad frente
       al criterio geométrico.
 
-    • En Google, variar el área mı́nima entre 10 y 25 m2 (con confianza fija en 0.70) cambia
+                                                   4
+    • En Google, variar el área mı́nima entre 10 y 25 m2 (con confianza fija en 0.70) cambia
       el área apta solo en 4.83 km2 (−2.33 %), mientras que elevar la confianza de 0.60 a 0.80
       (con área mı́nima en 15 m2 ) reduce el área apta en 89.28 km2 (−40.46 %, de 220.64 a
       131.36 km2 ).

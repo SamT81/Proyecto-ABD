@@ -127,6 +127,7 @@ Los límites provienen de la capa municipal del Marco Geoestadístico Nacional 2
 \label{tab:dic_results}
 \end{table}
 
+\noindent\begin{minipage}{\linewidth}
 \begin{lstlisting}[style=lab]
 { $group: {
     _id: "$municipality_code",
@@ -139,20 +140,13 @@ Los límites provienen de la capa municipal del Marco Geoestadístico Nacional 2
     suitable_area_m2: { $sum: { $cond: [
       { $and: [ { $gte: ["$area_m2", 15] },
                 { $gte: ["$confidence", 0.70] } ] },
-      "$area_m2", 0 ] } }
-} },
-{ $project: {
-    municipality_code: "$_id",
-    source: "google",
-    params: { min_area_m2: 15, min_confidence: 0.70 },
-    computed_at: "$$NOW"
-} },
-{ $merge: {
-    into: "results",
-    on: ["municipality_code", "source"],
-    whenMatched: "replace"
-} }
+      "$area_m2", 0 ] } } } },
+{ $project: { municipality_code: "$_id", source: "google",
+              params: {...}, computed_at: "$$NOW" } },
+{ $merge: { into: "results", on: ["municipality_code", "source"],
+            whenMatched: "replace" } }
 \end{lstlisting}
+\end{minipage}
 
 \subsection{Resultados}
 \begin{table}[H]
