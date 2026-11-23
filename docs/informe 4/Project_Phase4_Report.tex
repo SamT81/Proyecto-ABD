@@ -133,11 +133,25 @@ Los límites provienen de la capa municipal del Marco Geoestadístico Nacional 2
     building_count: { $sum: 1 },
     total_roof_area_m2: { $sum: "$area_m2" },
     suitable_count: { $sum: { $cond: [
-      { $and: [ { $gte: ["$area_m2", 15] }, { $gte: ["$confidence", 0.70] } ] }, 1, 0 ] } },
+      { $and: [ { $gte: ["$area_m2", 15] },
+                { $gte: ["$confidence", 0.70] } ] },
+      1, 0 ] } },
     suitable_area_m2: { $sum: { $cond: [
-      { $and: [ { $gte: ["$area_m2", 15] }, { $gte: ["$confidence", 0.70] } ] }, "$area_m2", 0 ] } } } },
-{ $project: { municipality_code: "$_id", source: "google", params: {...}, computed_at: ... } },
-{ $merge: { into: "results", on: ["municipality_code", "source"], whenMatched: "replace" } }
+      { $and: [ { $gte: ["$area_m2", 15] },
+                { $gte: ["$confidence", 0.70] } ] },
+      "$area_m2", 0 ] } }
+} },
+{ $project: {
+    municipality_code: "$_id",
+    source: "google",
+    params: { min_area_m2: 15, min_confidence: 0.70 },
+    computed_at: "$$NOW"
+} },
+{ $merge: {
+    into: "results",
+    on: ["municipality_code", "source"],
+    whenMatched: "replace"
+} }
 \end{lstlisting}
 
 \subsection{Resultados}
