@@ -60,7 +60,6 @@ List of Tables
          confianza. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 4
    6     Métricas de concordancia y discrepancia entre Google y Microsoft. . . . . . .       5
    7     Los 10 municipios PDET con mayor área de techos aptos en cada fuente. . .           6
-   8     Mayores discrepancias absolutas en área apta (Google − Microsoft). . . . . .        6
 
 
 
@@ -95,7 +94,7 @@ el Cuadro 2 relaciona esta entrega con las secciones y los archivos del reposito
  Comparación entre           5        04 compare sources.py,             feat/comparison
  fuentes                               docs/comparacion/
  Mapas y gráficos            6        05 make maps.py, docs/mapas/       feat/maps
- Discusión, conclusiones y   7a9      README.md, este informe            feat/final-report
+ Discusión, conclusiones y   7y8      README.md, este informe            feat/final-report
  reproducibilidad
 
                               Table 2: Componentes de la Entrega 4.
@@ -109,53 +108,56 @@ pios PDET: de 4 595 615 y 31 499 115 registros leı́dos, el ETL conservó 1 76
 dentro de PDET. Cada edificio se asignó a un solo municipio con su punto representativo,
 se reparó si era inválido (28 en Microsoft) y se midió en EPSG:9377. La carga a MongoDB
 tomó 82 s y 39 s con 4 procesos, con los ı́ndices creados después, y los conteos coinciden con
-los del ETL. Los detalles están en los informes de las entregas 2 y 3.
+los del ETL.
 
                                                 2
 Criterio de techo apto. Una huella es un techo apto si su área es de al menos 15 m2 y, solo
 en Google, su confianza es de al menos 0.70. Los umbrales son parámetros (config/params.yaml)
-y cada resultado guarda los que se usaron. Es un supuesto metodológico: la huella mide la
-proyección del edificio y no la superficie realmente instalable (ver Sección 7).
+y cada resultado guarda los que se usaron (ver Sección 7).
 
 
-3      Resultados por Municipio y Fuente
-3.1     La colección results
+3       Resultados por Municipio y Fuente
+3.1      La colección results
 src/03 build results.py agrega cada colección de edificios por municipality code con
 una sola agregación de MongoDB y escribe el resultado con $merge en results. No hay
 join espacial: el municipio se asignó en el ETL, y el ı́ndice compuesto (municipality code,
 area m2) apoya la agrupación. Cada documento guarda los parámetros del criterio y la
 fecha de cálculo (Cuadro 3). El ı́ndice único (municipality code, source) y $merge con
-whenMatched: replace hacen que repetir el cálculo reemplace los documentos en lugar de
-duplicarlos.
+whenMatched: "replace" hacen que repetir el cálculo reemplace los documentos sin dupli-
+carlos.
 
- Campo                                  Tipo          Descripción
- municipality code                      String        Código DIVIPOLA del municipio PDET.
- source                                 String        microsoft o google.
- building count                         Int           Edificios del municipio en la fuente.
- total roof area m2                     Double        Suma de area m2 de todos los edificios.
- suitable count, suitable area m2       Int, Double   Techos aptos y su área.
- params                                 Object        min area m2,      min confidence      (solo
-                                                      Google) y crs area.
- computed at                            Date          Fecha y hora del cálculo.
+ Campo                                     Tipo           Descripción
+ municipality code                         String         Código DIVIPOLA del municipio PDET.
+ source                                    String         microsoft o google.
+ building count                            Int            Edificios del municipio en la fuente.
+ total roof area m2                        Double         Suma de area m2 de todos los edificios.
+ suitable count, suitable area m2          Int, Double    Techos aptos y su área.
+ params                                    Object         min area m2,      min confidence      (solo
+                                                          Google) y crs area.
+ computed at                               Date           Fecha y hora del cálculo.
 
-                         Table 3: Documentos de la colección results.
-
-
-1   { $group : { _id : " $municipality_code " , building_count : { $sum : 1 } ,
-2                   total_roof_area_m2 : { $sum : " $area_m2 " } ,
-3                   suitable_count : { $sum : { $cond : [ { $and : [ { $gte :[" $area_m2 " ,15]} ,
-          { $gte :[" $confidence " ,0.70]} ] } , 1 , 0 ] } } ,
-4                   suitable_area_m2 : { $sum : { $cond : [ { $and : [ { $gte :[" $area_m2
-        " ,15]} , { $gte :[" $confidence " ,0.70]} ] } , " $area_m2 " , 0 ] } } } }
-5   { $project : { municipality_code : " $_id " , source : " google " , params : {...} ,
-        computed_at : ... } }
-6   { $merge : { into : " results " , on : [" municipality_code " , " source "] , whenMatched : "
-        replace " } }
+                           Table 3: Documentos de la colección results.
 
 
+ 1   { $group : {
+ 2       _id : " $ mu nic ip al it y_ co de " ,
+ 3       building_count : { $sum : 1 } ,
+ 4       tota l_ ro of _a re a_ m2 : { $sum : " $area_m2 " } ,
+ 5       suitable_count : { $sum : { $cond : [
+ 6         { $and : [ { $gte : [" $area_m2 " , 15] } , { $gte : [" $confidence " , 0.70] } ] } , 1 , 0
+          ] } },
+ 7       suitable_area_m2 : { $sum : { $cond : [
+ 8         { $and : [ { $gte : [" $area_m2 " , 15] } , { $gte : [" $confidence " , 0.70] } ] } , "
+         $area_m2 " , 0 ] } } } } ,
+ 9   { $project : { munic ipali ty_cod e : " $_id " , source : " google " , params : {...} , computed_at
+         : ... } } ,
+10   { $merge : { into : " results " , on : [" municipality_code " , " source "] , whenMatched : "
+         replace " } }
 
 
-                                                 3
+
+
+                                                    3
 3.2     Resultados
 
                                                                            Microsoft      Google
@@ -198,8 +200,8 @@ el área apta en una sola pasada de agregación variando el área mı́nima d
 Table 5: Sensibilidad del número de techos y del área apta según umbrales de área y confianza.
 
     • Al aumentar el umbral de área mı́nima de 10 a 25 m2 , Microsoft apenas reduce su área
-      apta en 2.34 km2 (−1.06 %, pasando de 221.13 a 218.79 km2 ), lo que demuestra alta
-      estabilidad frente al criterio geométrico.
+      apta en 2.34 km2 (−1.06 %, de 221.13 a 218.79 km2 ), mostrando alta estabilidad frente
+      al criterio geométrico.
 
                                                    4
     • En Google, variar el área mı́nima entre 10 y 25 m2 (con confianza fija en 0.70) cambia
@@ -207,106 +209,82 @@ Table 5: Sensibilidad del número de techos y del área apta según umbrales 
       (con área mı́nima en 15 m2 ) reduce el área apta en 89.28 km2 (−40.46 %, de 220.64 a
       131.36 km2 ).
 
-    • El umbral de confianza domina ampliamente la variabilidad del modelo frente al corte
-      de área mı́nima; por ello se recomienda a la UPME trabajar con el rango base entre
-      206.28 km2 (Google con confianza ≥ 0.70) y 221.07 km2 (Microsoft), acotado global-
-      mente entre 130.80 y 222.35 km2 .
+    • El umbral de confianza domina ampliamente la variabilidad del modelo; se recomienda
+      a la UPME trabajar con el rango base entre 206.28 km2 (Google con confianza ≥ 0.70)
+      y 221.07 km2 (Microsoft), acotado globalmente entre 130.80 y 222.35 km2 .
 
 
 5     Comparación entre Microsoft y Google
-El módulo src/04 compare sources.py cruza los resultados de ambas fuentes sobre los
-165 municipios con cobertura compartida y excluye de los estadı́sticos pareados los cinco
-municipios sin registros en Google: Murindó (05475) y Vigı́a del Fuerte (05873) en Antioquia,
-y Bojayá (27099), Medio San Juan (27450) y Nóvita (27491) en Chocó.
+El módulo src/04 compare sources.py cruza los resultados sobre los 165 municipios con
+cobertura compartida y excluye de los estadı́sticos pareados los cinco municipios sin registros
+en Google: Murindó (05475) y Vigı́a del Fuerte (05873) en Antioquia, y Bojayá (27099),
+Medio San Juan (27450) y Nóvita (27491) en Chocó.
 
- Indicador pareado (n = 165 municipios)                                                     Valor
- Correlación de Pearson en conteo de edificios                                            0.9152
- Correlación de Spearman en conteo de edificios                                           0.9038
- Correlación de Pearson en área apta (km2 )                                              0.9855
- Correlación de Spearman en área apta (km2 )                                             0.9371
- Mediana de la razón Google/Microsoft en conteo                                            1.400
- Mediana de la razón Google/Microsoft en área apta                                        0.922
- Municipios donde Google tiene mayor conteo / mayor área apta                           133 / 60
- Error relativo absoluto medio en área apta                                       0.246 (24.6 %)
- Concordancia en el Top 20 de área apta                                        17 de 20 comunes
- Tasa de solapamiento espacial (muestra Google sobre Microsoft)                            71.2 %
+ Indicador pareado (n = 165 municipios)                                                 Valor
+ Correlación de Pearson / Spearman en conteo de edificios                     0.9152 / 0.9038
+ Correlación de Pearson / Spearman en área apta (km2 )                       0.9855 / 0.9371
+ Mediana de la razón Google/Microsoft en conteo / área apta                    1.400 / 0.922
+ Municipios donde Google tiene mayor conteo / mayor área apta                        133 / 60
+ Error relativo absoluto medio en área apta                                    0.246 (24.6 %)
+ Concordancia en el Top 20 de área apta                                     17 de 20 comunes
+ Tasa de solapamiento espacial (muestra Google sobre Microsoft)                         71.2 %
 
          Table 6: Métricas de concordancia y discrepancia entre Google y Microsoft.
 
 Por qué Google detecta más edificios pero menos área apta. Aunque Google registra
 un 53 % más de edificaciones brutas (2.69 millones frente a 1.76 millones), sus polı́gonos son
-más pequeños y fragmentados (área media de 82.75 m2 frente a 125.57 m2 en Microsoft), por lo
-que el área total sin filtrar casi empata (223.01 frente a 221.13 km2 ). Al exigir confianza ≥ 0.70
-en Google se descartan 533,521 detecciones dudosas (16.72 km2 ), mientras que en Microsoft
-solo se descartan 0.06 km2 por tamaño; sumado a los cinco municipios sin datos de Google,
-Microsoft queda por encima en área apta (221.07 frente a 206.28 km2 ). Adicionalmente, dado
-que el 71.2 % de las huellas de Google intersecta edificaciones de Microsoft, ambas fuentes
-observan los mismos techos y nunca deben sumarse.
+más pequeños y fragmentados (área media de 82.75 m2 frente a 125.57 m2 en Microsoft), por
+lo que el área total sin filtrar casi empata (223.01 frente a 221.13 km2 ). Al exigir confianza
+≥ 0.70 en Google se descartan 533,521 detecciones dudosas (16.72 km2 ); sumado a los cinco
+municipios sin datos de Google, Microsoft queda por encima en área apta (221.07 frente a
+206.28 km2 ). Dado el 71.2 % de solapamiento, ambas fuentes observan los mismos techos y
+nunca deben sumarse.
 
 
 
 
-                                                 5
- Pos.     Municipio (Microsoft)      Área apta (km2 )     Municipio (Google)       Área apta (km2 )
-     1    Santa Marta                              14.21   Santa Marta                            14.96
-     2    Valledupar                               13.51   Valledupar                             14.36
-     3    Buenaventura                              7.15   Buenaventura                            7.07
-     4    Florencia                                 6.69   Florencia                               6.92
-     5    Turbo                                     4.66   Turbo                                   5.57
-     6    San Andrés de Tumaco                     4.53   Ciénaga                                3.64
-     7    Santander de Quilichao                    4.24   Santander de Quilichao                  3.58
-     8    San Vicente del Caguán                   3.76   San Andrés de Tumaco                   3.44
-     9    Tibú                                     3.57   Apartadó                               3.33
-    10    Ciénaga                                  3.47   Tame                                    2.98
+                                               5
+ Pos.     Municipio (Microsoft)     Área apta (km2 )     Municipio (Google)       Área apta (km2 )
+     1    Santa Marta                             14.21   Santa Marta                          14.96
+     2    Valledupar                              13.51   Valledupar                           14.36
+     3    Buenaventura                             7.15   Buenaventura                          7.07
+     4    Florencia                                6.69   Florencia                             6.92
+     5    Turbo                                    4.66   Turbo                                 5.57
+     6    San Andrés de Tumaco                    4.53   Ciénaga                              3.64
+     7    Santander de Quilichao                   4.24   Santander de Quilichao                3.58
+     8    San Vicente del Caguán                  3.76   San Andrés de Tumaco                 3.44
+     9    Tibú                                    3.57   Apartadó                             3.33
+    10    Ciénaga                                 3.47   Tame                                  2.98
 
      Table 7: Los 10 municipios PDET con mayor área de techos aptos en cada fuente.
-
-
-    Código    Municipio                 MS (km2 )    Google (km2 )     Dif. (km2 )   Dif. rel.
-    18753      San Vicente del Caguán        3.76               2.41        −1.35     −35.8 %
-    81736      Saravena                       2.96               1.85        −1.11     −37.6 %
-    52835      San Andrés de Tumaco          4.53               3.44        −1.08     −24.0 %
-    54810      Tibú                          3.57               2.50        −1.07     −30.0 %
-    05837      Turbo                          4.66               5.57        +0.91     +19.6 %
-    20001      Valledupar                    13.51              14.36        +0.85      +6.3 %
-    19256      El Tambo                       3.05               2.25        −0.80     −26.2 %
-    50350      La Macarena                    1.79               1.01        −0.78     −43.8 %
-    47001      Santa Marta                   14.21              14.96        +0.76      +5.3 %
-    05031      Amalfi                         0.87               0.17        −0.70     −80.6 %
-
-          Table 8: Mayores discrepancias absolutas en área apta (Google − Microsoft).
 
 
 6        Cartografı́a
 Los mapas (src/05 make maps.py, GeoPandas y Matplotlib) usan los polı́gonos del MGN2025
 y los resultados de results.csv. Los municipios sin datos de Google se dibujan con rayado
-gris. Todas las figuras llevan la atribución de las licencias (ODbL y CC BY 4.0).
+gris.
 
 
 
 
-                                               6
+                                              6
 Figure 1: Área de techos aptos por municipio PDET, Microsoft y Google, con la misma
 escala de color.
 
-    La mayor concentración de área apta se ubica en las cabeceras urbanas más pobladas de
-las subregiones Sierra Nevada y Perijá (Santa Marta y Valledupar), Pacı́fico Medio (Bue-
-naventura), Cuenca del Caguán (Florencia) y Urabá Antioqueño (Turbo), mientras que los
-municipios predominantemente rurales de la Amazonı́a y el Pacı́fico presentan valores bajos
-y dispersos.
+   La mayor concentración de área apta se ubica en las cabeceras urbanas de Santa Marta,
+Valledupar, Buenaventura, Florencia y Turbo, mientras que los municipios rurales de la
+Amazonı́a y el Pacı́fico presentan valores bajos y dispersos.
 
 
 
 
-                                             7
+                                            7
           Figure 2: Diferencia de área apta (Google − Microsoft) por municipio.
 
-   Google supera a Microsoft en 60 municipios —especialmente en centros urbanos con alta
-densidad de construcciones pequeñas como Santa Marta (+0.76 km2 ), Valledupar (+0.85 km2 )
-y Turbo (+0.91 km2 )—, mientras que Microsoft registra mayor área apta en 105 municipios
-rurales y de selva húmeda como San Vicente del Caguán (−1.35 km2 ), Saravena (−1.11 km2 )
-y Tumaco (−1.08 km2 ). Los cinco municipios sin datos en Google (Murindó, Vigı́a del Fuerte,
-Bojayá, Medio San Juan y Nóvita, en Antioquia y Chocó) aparecen con rayado gris.
+    Google supera a Microsoft en 60 municipios urbanos densos (Turbo +0.91 km2 , Valledupar
++0.85 km2 , Santa Marta +0.76 km2 ), mientras que Microsoft registra mayor área en 105 mu-
+nicipios rurales y de selva húmeda (San Vicente del Caguán −1.35 km2 , Saravena −1.11 km2 ,
+Tumaco −1.08 km2 ). Los cinco municipios sin datos en Google aparecen con rayado gris.
 
 
 
@@ -319,61 +297,49 @@ Bojayá, Medio San Juan y Nóvita, en Antioquia y Chocó) aparecen con rayado
 
            Figure 4: Municipios con más área apta en cada fuente.
 
-
                                        9
    Santa Marta (14.21 km2 en Microsoft; 14.96 km2 en Google), Valledupar (13.51 y 14.36 km2 )
-y Buenaventura (7.15 y 7.07 km2 ) encabezan el ranking en ambas fuentes; junto con Florencia
-y Turbo, los cinco primeros municipios concentran más del 20 % del área apta total de los
-170 municipios PDET.
+y Buenaventura (7.15 y 7.07 km2 ) encabezan ambas fuentes; los cinco primeros concentran
+más del 20 % del área apta total.
 
 
-7      Discusión, alcances y limitaciones
-Escenario recomendado para planeación (UPME). Dado que las dos fuentes presen-
-tan una correlación lineal muy alta (r = 0.9855) y coinciden en los municipios prioritarios,
-pero tienen un 71.2 % de solapamiento espacial, los resultados no son aditivos. Para ejercicios
-de planeación energética territorial se recomienda adoptar Microsoft (221.07 km2 ) como
-lı́nea base por su cobertura completa en los 170 municipios PDET y estabilidad frente al um-
-bral de tamaño, y Google (206.28 km2 con confianza ≥ 0.70) como escenario conservador,
-conformando un intervalo de referencia entre 206.28 y 221.07 km2 (acotado globalmente entre
-130.80 y 222.35 km2 según sensibilidad).
+7     Discusión, alcances y limitaciones
+Escenario recomendado para planeación (UPME). Dada la alta correlación lineal
+(r = 0.9855) y el 71.2 % de solapamiento espacial, los resultados no son aditivos. Se re-
+comienda adoptar Microsoft (221.07 km2 ) como lı́nea base por cobertura completa en los
+170 municipios PDET y Google (206.28 km2 con confianza ≥ 0.70) como escenario con-
+servador, conformando un intervalo de referencia entre 206.28 y 221.07 km2 .
 
 Limitaciones técnicas y fı́sicas.
-    • Tope geométrico superior: Las huellas satelitales representan la proyección bidimen-
-      sional en planta de la cubierta, no la superficie instalable efectiva. El aprovechamiento
-      real requiere descontar inclinación, orientación (acimut), sombras de vegetación o edifi-
-      caciones vecinas, obstáculos en cubierta (tanques, claraboyas) y capacidad estructural.
 
-    • Vacı́os de cobertura en zonas nubosas: Google Open Buildings v3 no contiene
-      registros en cinco municipios de Antioquia y Chocó, lo que subestimarı́a el potencial
-      regional del Pacı́fico y Urabá si se empleara como fuente única.
+    • Tope geométrico superior: Las huellas miden la proyección en planta de la cubierta,
+      sin descontar inclinación, orientación, sombras, obstáculos ni capacidad estructural.
 
-    • Sensibilidad al umbral de confianza: En Google, elevar el corte de confianza de 0.60
-      a 0.80 reduce el área apta en 40.5 %, especialmente en edificaciones rurales pequeñas o
-      con techos de baja reflectancia.
+    • Vacı́os en zonas nubosas: Google Open Buildings v3 carece de datos en cinco mu-
+      nicipios de Antioquia y Chocó.
+
+    • Sensibilidad a la confianza: Elevar el corte de confianza en Google de 0.60 a 0.80
+      reduce el área apta en 40.5 %.
 
 
-8      Conclusiones y trabajo futuro
-Se implementó un flujo geoespacial reproducible e idempotente sobre MongoDB 7 capaz
-de procesar y consultar 4,455,825 edificaciones en los 170 municipios PDET de Colombia.
-La separación entre almacenamiento espacial en WGS84 (EPSG:4326 con ı́ndice 2dsphere),
-cálculo métrico de áreas en proyección oficial colombiana (EPSG:9377), carga paralela con
-bitácora SHA-256 (ingestion log) y materialización mediante $merge permitió reducir las
-consultas espaciales a milisegundos y recalcular escenarios de sensibilidad en una sola pasada
-de agregación.
-     Como trabajo futuro para transformar el potencial geométrico estimado (206.28–221.07 km2 )
-en generación eléctrica efectiva (MWh/año), se propone integrar mapas municipales de ir-
-radiación solar horizontal (UPME/IDEAM), factores de aprovechamiento efectivo derivados
-de modelos digitales de elevación o LiDAR, y restricciones de capacidad de conexión en las
-redes locales de distribución.
+8     Conclusiones y trabajo futuro
+Se implementó un flujo geoespacial reproducible e idempotente sobre MongoDB 7 que procesó
+4,455,825 edificaciones en los 170 municipios PDET. La separación entre almacenamiento es-
+pacial en WGS84 (EPSG:4326 con ı́ndice 2dsphere), cálculo métrico en EPSG:9377, carga
+paralela con bitácora SHA-256 (ingestion log) y materialización mediante $merge per-
+mitió reducir las consultas espaciales a milisegundos y recalcular escenarios de sensibilidad
+en una sola pasada. Como trabajo futuro se propone integrar mapas de irradiación solar
+(UPME/IDEAM), factores de aprovechamiento efectivo (LiDAR) y capacidad de redes lo-
+cales para estimar generación eléctrica efectiva (MWh/año).
 
-                                                10
-Atribución de los datos
-Microsoft Global ML Building Footprints, licencia ODbL v1.0. Google Open Buildings v3, li-
-cencia CC BY 4.0 y ODbL v1.0. Lı́mites municipales: DANE, Marco Geoestadı́stico Nacional
-2025. Municipios PDET: Agencia de Renovación del Territorio (Decreto 893 de 2017).
+
+Atribución de los datos
+Microsoft Global ML Building Footprints (ODbL v1.0). Google Open Buildings v3 (CC
+BY 4.0 y ODbL v1.0). Lı́mites municipales: DANE MGN 2025. Municipios PDET: ART
+(Decreto 893 de 2017).
 
 
 
 
-                                           11
+                                              10
 
