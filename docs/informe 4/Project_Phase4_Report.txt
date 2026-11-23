@@ -117,7 +117,7 @@ y cada resultado guarda los que se usaron (ver Sección 7).
 
 
 3     Resultados por Municipio y Fuente
-3.1    La colección results
+3.1     La colección results
 src/03 build results.py agrega cada colección de edificios por municipality code con
 una sola agregación de MongoDB y escribe el resultado con $merge en results. No hay
 join espacial: el municipio se asignó en el ETL, y el ı́ndice compuesto (municipality code,
@@ -126,38 +126,37 @@ fecha de cálculo (Cuadro 3). El ı́ndice único (municipality code, source) 
 whenMatched: "replace" hacen que repetir el cálculo reemplace los documentos sin dupli-
 carlos.
 
- Campo                               Tipo          Descripción
- municipality code                   String        Código DIVIPOLA del municipio PDET.
- source                              String        microsoft o google.
- building count                      Int           Edificios del municipio en la fuente.
- total roof area m2                  Double        Suma de area m2 de todos los edificios.
- suitable count, suitable area m2    Int, Double   Techos aptos y su área.
- params                              Object        min area m2,      min confidence      (solo
-                                                   Google) y crs area.
- computed at                         Date          Fecha y hora del cálculo.
+ Campo                                Tipo          Descripción
+ municipality code                    String        Código DIVIPOLA del municipio PDET.
+ source                               String        microsoft o google.
+ building count                       Int           Edificios del municipio en la fuente.
+ total roof area m2                   Double        Suma de area m2 de todos los edificios.
+ suitable count, suitable area m2     Int, Double   Techos aptos y su área.
+ params                               Object        min area m2,      min confidence      (solo
+                                                    Google) y crs area.
+ computed at                          Date          Fecha y hora del cálculo.
 
-                      Table 3: Documentos de la colección results.
+                       Table 3: Documentos de la colección results.
 
- { $group: {
-    id: "$municipality code",
-   building count: { $sum: 1 },
-   total roof area m2: { $sum: "$area m2" },
-   suitable count: { $sum: { $cond: [
-      { $and: [ { $gte: ["$area m2", 15] }, { $gte: ["$confidence", 0.70] } ] }, 1, 0
- ] } },
-   suitable area m2: { $sum: { $cond: [
-      { $and: [ { $gte: ["$area m2", 15] }, { $gte: ["$confidence", 0.70] } ] },
- "$area m2", 0 ] } }
- } },
- { $project: { municipality code: "$ id", source: "google", params: {...},
- computed at: "$$NOW" } },
- { $merge: { into: "results", on: ["municipality code", "source"], whenMatched:
- "replace" } }
+    Etapas del pipeline de agregación (src/03 build results.py):
 
+    1. Agrupación ($group): consolida por municipality code el total de edificaciones
+       (building count), el área bruta (total roof area m2) y, mediante filtros condicionales
+       (area m2 ≥ 15 m2 y confidence ≥ 0.70), el conteo y área de techos aptos (suitable count,
+       suitable area m2).
+
+    2. Proyección ($project): normaliza el código DIVIPOLA ($ id), asigna la fuente
+       (microsoft o google) y adjunta los umbrales aplicados (params) junto con la fecha de
+       ejecución ($$NOW).
+
+    3. Materialización ($merge): escribe en results usando la clave compuesta (municipality code,
+       source) con whenMatched: "replace", garantizando ejecuciones idempotentes sin
+       duplicados.
 
 
 
-                                             3
+
+                                              3
 3.2      Resultados
 
                                                                                Microsoft      Google

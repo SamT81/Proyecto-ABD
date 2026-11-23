@@ -127,25 +127,12 @@ Los límites provienen de la capa municipal del Marco Geoestadístico Nacional 2
 \label{tab:dic_results}
 \end{table}
 
-\noindent\begingroup
-\setlength{\fboxsep}{8pt}%
-\setlength{\fboxrule}{0.5pt}%
-\fcolorbox{gray!40}{codebg}{%
-\begin{minipage}{\dimexpr\textwidth-2\fboxsep-2\fboxrule\relax}
-\ttfamily\footnotesize
-\{ \$group: \{\\
-\hspace*{1.2em}\_id: "\$municipality\_code",\\
-\hspace*{1.2em}building\_count: \{ \$sum: 1 \},\\
-\hspace*{1.2em}total\_roof\_area\_m2: \{ \$sum: "\$area\_m2" \},\\
-\hspace*{1.2em}suitable\_count: \{ \$sum: \{ \$cond: [\\
-\hspace*{2.4em}\{ \$and: [ \{ \$gte: ["\$area\_m2", 15] \}, \{ \$gte: ["\$confidence", 0.70] \} ] \}, 1, 0 ] \} \},\\
-\hspace*{1.2em}suitable\_area\_m2: \{ \$sum: \{ \$cond: [\\
-\hspace*{2.4em}\{ \$and: [ \{ \$gte: ["\$area\_m2", 15] \}, \{ \$gte: ["\$confidence", 0.70] \} ] \}, "\$area\_m2", 0 ] \} \}\\
-\} \},\\
-\{ \$project: \{ municipality\_code: "\$\_id", source: "google", params: \{...\}, computed\_at: "\$\$NOW" \} \},\\
-\{ \$merge: \{ into: "results", on: ["municipality\_code", "source"], whenMatched: "replace" \} \}
-\end{minipage}}%
-\endgroup
+\textbf{Etapas del \emph{pipeline} de agregación (\texttt{src/03\_build\_results.py}):}
+\begin{enumerate}
+  \item \textbf{Agrupación (\texttt{\$group}):} consolida por \texttt{municipality\_code} el total de edificaciones (\texttt{building\_count}), el área bruta (\texttt{total\_roof\_area\_m2}) y, mediante filtros condicionales (\texttt{area\_m2} $\ge 15$\,m$^2$ y \texttt{confidence} $\ge 0.70$), el conteo y área de techos aptos (\texttt{suitable\_count}, \texttt{suitable\_area\_m2}).
+  \item \textbf{Proyección (\texttt{\$project}):} normaliza el código DIVIPOLA (\texttt{\$\_id}), asigna la fuente (\texttt{microsoft} o \texttt{google}) y adjunta los umbrales aplicados (\texttt{params}) junto con la fecha de ejecución (\texttt{\$\$NOW}).
+  \item \textbf{Materialización (\texttt{\$merge}):} escribe en \texttt{results} usando la clave compuesta \texttt{(municipality\_code, source)} con \texttt{whenMatched: "replace"}, garantizando ejecuciones idempotentes sin duplicados.
+\end{enumerate}
 
 \subsection{Resultados}
 \begin{table}[H]
